@@ -1,7 +1,9 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Windows.Input;
 using ICSBel.Domain.Models;
 using ICSBel.Domain.Services;
+using ICSBel.Presentation.Base;
 
 namespace ICSBel.Presentation.ViewModels;
 
@@ -43,7 +45,9 @@ public class ExploreEmployeesViewModel : INotifyPropertyChanged
             OnPropertyChanged();
         }
     }
-        
+
+    public ICommand DeleteEmployeesCommand { get; }
+
     public event PropertyChangedEventHandler PropertyChanged;
 
     public ExploreEmployeesViewModel(EmployeeDataService employeeDataService)
@@ -59,6 +63,19 @@ public class ExploreEmployeesViewModel : INotifyPropertyChanged
             .GetEmployeeRepository()
             .GetAllPositions()
             .ToList());
+        
+        DeleteEmployeesCommand = new RelayCommand((rawIndices) =>
+        {
+            var employeeIndices = rawIndices as int[];
+
+            if (employeeIndices != null && employeeIndices.Length > 0)
+            {
+                foreach (int index in employeeIndices)
+                {
+                    _employees.RemoveAt(index);
+                }
+            }
+        });
     }
 
 

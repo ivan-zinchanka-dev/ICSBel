@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.Diagnostics;
 using ICSBel.Presentation.ViewModels;
 
 namespace ICSBel.Presentation.Views;
@@ -12,7 +13,8 @@ public partial class ExploreEmployeesView : Form
     public ExploreEmployeesView(ExploreEmployeesViewModel viewModel)
     {
         _viewModel = viewModel;
-     
+        DataContext = _viewModel;
+        
         InitializeComponent();
         CreateView();
     }
@@ -60,6 +62,8 @@ public partial class ExploreEmployeesView : Form
         var reportButton = new Button { Text = "Отчёт", Width = 100 };
         
         
+        //deleteButton.DataBindings.Add(new Binding("Command", DataContext, "AddCommand", true));
+        
         deleteButton.Click += OnRemoveEmployeesClick;
 
         rightPanel.Controls.Add(addButton);
@@ -76,7 +80,6 @@ public partial class ExploreEmployeesView : Form
             AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill
         };
         
-        
         _employeeTable.AutoGenerateColumns = false;
 
         AddEmployeeTableColumn("FirstName", "Имя");
@@ -85,7 +88,12 @@ public partial class ExploreEmployeesView : Form
         AddEmployeeTableColumn("BirthYear", "Год рождения");
         AddEmployeeTableColumn("Salary", "Зарплата");
 
-        _employeeTable.DataSource = _viewModel.AllEmployees;
+        //_employeeTable.DataSource = _viewModel.AllEmployees;
+        _employeeTable.DataBindings.Add(new Binding(
+            nameof(_employeeTable.DataSource), 
+            _viewModel, 
+            nameof(_viewModel.AllEmployees), 
+            false, DataSourceUpdateMode.OnPropertyChanged));
         
         
         mainLayout.Controls.Add(_employeeTable, 0, 1);
@@ -96,8 +104,14 @@ public partial class ExploreEmployeesView : Form
 
     private void OnRemoveEmployeesClick(object sender, EventArgs eventArgs)
     {
+        var deletableIndices = new int[_employeeTable.SelectedRows.Count];
+
+        for (int i = 0; i < deletableIndices.Length; i++)
+        {
+            deletableIndices[i] = _employeeTable.SelectedRows[i].Index;
+        }
         
-        
+        _viewModel.DeleteEmployeesCommand.Execute(deletableIndices);
     }
 
     private void AddEmployeeTableColumn(string dataPropertyName, string headerText)
@@ -111,9 +125,9 @@ public partial class ExploreEmployeesView : Form
 
     private void OnViewModelPropertyChanged(object sender, PropertyChangedEventArgs eventArgs)
     {
-        if (eventArgs.PropertyName == nameof(_viewModel.AllEmployees))
+        /*if (eventArgs.PropertyName == nameof(_viewModel.AllEmployees))
         {
             _employeeTable.DataSource = _viewModel.AllEmployees;
-        }
+        }*/
     }
 }
