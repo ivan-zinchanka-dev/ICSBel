@@ -1,6 +1,7 @@
 using ICSBel.Domain.Services;
 using ICSBel.Presentation.ViewModels;
 using ICSBel.Presentation.Views;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace ICSBel.Presentation;
 
@@ -11,11 +12,15 @@ public static class Program
     {
         Application.EnableVisualStyles();
         Application.SetCompatibleTextRenderingDefault(false);
-        Application.Run(new ExploreEmployeesView(CreateEmployeesViewModel()));
-    }
+        
+        var services = new ServiceCollection();
+        services.AddSingleton<EmployeeDataService>();
+        services.AddTransient<ExploreEmployeesViewModel>();
+        services.AddTransient<ExploreEmployeesView>();
+        
+        IServiceProvider serviceProvider = services.BuildServiceProvider();
 
-    private static ExploreEmployeesViewModel CreateEmployeesViewModel()
-    {
-        return new ExploreEmployeesViewModel(new EmployeeDataService());
+        var mainView = serviceProvider.GetService<ExploreEmployeesView>();
+        Application.Run(mainView);
     }
 }
