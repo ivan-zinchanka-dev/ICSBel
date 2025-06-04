@@ -12,7 +12,6 @@ public class ExploreEmployeesViewModel : INotifyPropertyChanged
     private EmployeeDataService _employeeDataService;
     private BindingList<Employee> _employees;
     private BindingList<Position> _positions;
-    private Stack<Employee> _selectedEmployees;
         
     public BindingList<Employee> AllEmployees
     {
@@ -33,19 +32,9 @@ public class ExploreEmployeesViewModel : INotifyPropertyChanged
             OnPropertyChanged();
         }
     }
-        
-        
-        
-    public Stack<Employee> SelectedEmployees
-    {
-        get => _selectedEmployees;
-        set
-        {
-            _selectedEmployees = value;
-            OnPropertyChanged();
-        }
-    }
 
+
+    public ICommand CreateEmployeeCommand { get; }
     public ICommand DeleteEmployeesCommand { get; }
 
     public event PropertyChangedEventHandler PropertyChanged;
@@ -53,7 +42,8 @@ public class ExploreEmployeesViewModel : INotifyPropertyChanged
     public ExploreEmployeesViewModel(EmployeeDataService employeeDataService)
     {
         _employeeDataService = employeeDataService;
-            
+        DeleteEmployeesCommand = new RelayCommand(DeleteEmployees);
+        
         _employees = new BindingList<Employee>(_employeeDataService
             .GetEmployeeRepository()
             .GetAllEmployees()
@@ -63,22 +53,26 @@ public class ExploreEmployeesViewModel : INotifyPropertyChanged
             .GetEmployeeRepository()
             .GetAllPositions()
             .ToList());
-        
-        DeleteEmployeesCommand = new RelayCommand((rawIndices) =>
-        {
-            var employeeIndices = rawIndices as int[];
-
-            if (employeeIndices != null && employeeIndices.Length > 0)
-            {
-                foreach (int index in employeeIndices)
-                {
-                    _employees.RemoveAt(index);
-                }
-            }
-        });
     }
-
-
+    
+    
+    private void DeleteEmployees(object rawDeletableIndices)
+    {
+        var employeeIndices = rawDeletableIndices as int[];
+        DeleteEmployees(employeeIndices);
+    }
+    
+    private void DeleteEmployees(int[] deletableIndices)
+    {
+        if (deletableIndices != null && deletableIndices.Length > 0)
+        {
+            foreach (int index in deletableIndices)
+            {
+                _employees.RemoveAt(index);
+            }
+        }
+    }
+    
     protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
