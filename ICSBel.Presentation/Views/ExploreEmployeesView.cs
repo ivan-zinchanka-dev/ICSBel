@@ -19,12 +19,6 @@ internal partial class ExploreEmployeesView : Form
         InitializeLayout();
     }
 
-    /*public async Task InitializeAsync()
-    {
-        await _viewModel.InitializeAsync();
-        
-    }*/
-
     protected override async void OnLoad(EventArgs eventArgs)
     {
         base.OnLoad(eventArgs);

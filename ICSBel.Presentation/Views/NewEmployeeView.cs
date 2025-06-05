@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using ICSBel.Domain.Models;
+using ICSBel.Domain.Validation.Attributes;
 using ICSBel.Presentation.ViewModels;
 
 namespace ICSBel.Presentation.Views;
@@ -58,10 +59,15 @@ internal partial class NewEmployeeView : Form
         _positionInput.ValueMember = "Id";
         
         var birthYearLabel = new Label { Text = "Год рождения:", Left = 10, Top = 140, Width = 100 };
-        _birthYearInput = new NumericUpDown { Left = 120, Top = 140, Width = 200, Minimum = 1900, Maximum = DateTime.Now.Year };
+        _birthYearInput = new NumericUpDown { Left = 120, Top = 140, Width = 200, 
+            Minimum = CorrectBirthYearAttribute.MinYear, 
+            Maximum = CorrectBirthYearAttribute.MaxYear };
 
         var salaryLabel = new Label { Text = "Зарплата:", Left = 10, Top = 180, Width = 100 };
-        _salaryInput = new NumericUpDown { Left = 120, Top = 180, Width = 200, DecimalPlaces = 2, /*Maximum = 1_000_000*/ };
+        _salaryInput = new NumericUpDown { Left = 120, Top = 180, Width = 200, 
+            Minimum = CorrectSalaryAttribute.MinSalary,
+            Maximum = CorrectSalaryAttribute.MaxSalary,
+            DecimalPlaces = CorrectSalaryAttribute.DecimalPlaces };
 
         _submitButton = new Button { Text = "Сохранить", Left = 120, Top = 220, Width = 90 };
         _cancelButton = new Button { Text = "Отмена", Left = 230, Top = 220, Width = 90 };

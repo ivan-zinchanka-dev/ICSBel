@@ -6,6 +6,7 @@ using System.Windows.Input;
 using ICSBel.Domain.Models;
 using ICSBel.Domain.Services;
 using ICSBel.Domain.Validation;
+using ICSBel.Domain.Validation.Attributes;
 using ICSBel.Presentation.Base;
 
 namespace ICSBel.Presentation.ViewModels;
@@ -19,7 +20,7 @@ internal class NewEmployeeViewModel : BaseViewModel
     private BindingList<Position> _positions;
     private Position _selectedPosition;
     private int _birthYear = 2_000;
-    private decimal _salary = 10;
+    private decimal _salary = 1_000;
     
     private readonly ValidationErrorCollection _validationErrors = new ValidationErrorCollection();
     
@@ -75,7 +76,7 @@ internal class NewEmployeeViewModel : BaseViewModel
         }
     }
 
-    [Range(1900, 2020)]
+    [CorrectBirthYear]
     public int BirthYear
     {
         get => _birthYear;
@@ -87,7 +88,7 @@ internal class NewEmployeeViewModel : BaseViewModel
         }
     }
 
-    [Range(0, 100_000)]
+    [CorrectSalary]
     public decimal Salary
     {
         get => _salary;
