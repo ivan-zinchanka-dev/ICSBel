@@ -17,11 +17,6 @@ public class EmployeeDataService
         _serviceProvider = services.BuildServiceProvider();
     }
 
-    public async Task InitializeAsync()
-    {
-        await _serviceProvider.GetService<EmployeeDatabaseContext>().ConnectToDatabaseAsync();
-    }
-
     private void ConfigureServices(IServiceCollection services)
     {
         services.AddLogging(configure =>
