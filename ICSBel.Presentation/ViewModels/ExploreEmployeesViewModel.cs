@@ -69,6 +69,16 @@ internal class ExploreEmployeesViewModel : INotifyPropertyChanged
         if (newEmployeeDialog != null)
         {
             DialogResult result = newEmployeeDialog.ShowDialog();
+
+            if (result == DialogResult.OK)
+            {
+                AllEmployees = new BindingList<Employee>(_employeeDataService
+                    .GetEmployeeRepository()
+                    .GetAllEmployees()
+                    .ToList());
+            }
+
+            newEmployeeDialog.Close();
         }
     }
 
