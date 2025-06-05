@@ -10,7 +10,7 @@ namespace ICSBel.Presentation;
 public static class Program
 {
     [STAThread]
-    public static void Main()
+    public static async Task Main()
     {
         Application.EnableVisualStyles();
         Application.SetCompatibleTextRenderingDefault(false);
@@ -21,6 +21,8 @@ public static class Program
         IServiceProvider serviceProvider = services.BuildServiceProvider();
 
         var mainView = serviceProvider.GetRequiredService<ExploreEmployeesView>();
+        //await mainView.InitializeAsync();
+        
         Application.Run(mainView);
     }
 

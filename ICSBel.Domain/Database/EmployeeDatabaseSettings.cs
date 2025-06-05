@@ -1,11 +1,6 @@
 ﻿namespace ICSBel.Domain.Database;
 
-public class EmployeeDatabaseSettings
+internal class EmployeeDatabaseSettings
 {
-    public string ConnectionString { get; private set; }
-
-    public EmployeeDatabaseSettings(string connectionString)
-    {
-        ConnectionString = connectionString;
-    }
+    public string ConnectionString { get; set; }
 }

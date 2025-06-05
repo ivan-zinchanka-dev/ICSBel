@@ -1,4 +1,6 @@
 ﻿using ICSBel.Domain.Database;
+using ICSBel.Domain.Services.Abstractions;
+using ICSBel.Domain.Services.Implementations;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -7,7 +9,10 @@ namespace ICSBel.Domain.Services;
 
 public class EmployeeDataService
 {
-    private IServiceProvider _serviceProvider;
+    private readonly IServiceProvider _serviceProvider;
+    
+    public IPositionRepository PositionRepository => _serviceProvider.GetRequiredService<IPositionRepository>();
+    public IEmployeeRepository EmployeeRepository => _serviceProvider.GetRequiredService<IEmployeeRepository>();
     
     public EmployeeDataService()
     {
@@ -16,7 +21,7 @@ public class EmployeeDataService
         
         _serviceProvider = services.BuildServiceProvider();
     }
-
+    
     private void ConfigureServices(IServiceCollection services)
     {
         var configuration = new ConfigurationBuilder()
@@ -32,11 +37,9 @@ public class EmployeeDataService
         services.Configure<EmployeeDatabaseSettings>(
             configuration.GetSection(nameof(EmployeeDatabaseSettings)));
         
-        services.AddSingleton<EmployeeDatabaseContext>();
-    }
-
-    public IEmployeeRepository GetEmployeeRepository()
-    {
-        return new MockEmployeeRepository();
+        services.AddTransient<EmployeeDatabaseContext>();
+        services.AddSingleton<EmployeeDatabaseContextFactory>();
+        services.AddSingleton<IPositionRepository, PositionRepository>();
+        services.AddSingleton<IEmployeeRepository, EmployeeRepository>();
     }
 }

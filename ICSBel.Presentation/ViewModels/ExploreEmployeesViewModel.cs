@@ -11,9 +11,9 @@ namespace ICSBel.Presentation.ViewModels;
 
 internal class ExploreEmployeesViewModel : INotifyPropertyChanged
 {
+    private readonly EmployeeDataService _employeeDataService;
     private readonly ViewFactory _viewFactory;
     
-    private EmployeeDataService _employeeDataService;
     private BindingList<Employee> _employees;
     private BindingList<Position> _positions;
     
@@ -38,8 +38,8 @@ internal class ExploreEmployeesViewModel : INotifyPropertyChanged
     }
 
 
-    public ICommand CreateEmployeeCommand { get; }
-    public ICommand DeleteEmployeesCommand { get; }
+    public ICommand AddEmployeeCommand { get; }
+    public ICommand RemoveEmployeesCommand { get; }
 
     public event PropertyChangedEventHandler PropertyChanged;
 
@@ -48,21 +48,20 @@ internal class ExploreEmployeesViewModel : INotifyPropertyChanged
         _employeeDataService = employeeDataService;
         _viewFactory = viewFactory;
 
-        CreateEmployeeCommand = new RelayCommand(OpenCreateEmployeeDialog);
-        DeleteEmployeesCommand = new RelayCommand(DeleteEmployees);
-        
-        _employees = new BindingList<Employee>(_employeeDataService
-            .GetEmployeeRepository()
-            .GetAllEmployees()
-            .ToList());
-            
-        _positions = new BindingList<Position>(_employeeDataService
-            .GetEmployeeRepository()
-            .GetAllPositions()
-            .ToList());
+        AddEmployeeCommand = new RelayCommand(OpenAddEmployeeDialog);
+        RemoveEmployeesCommand = new RelayCommand(RemoveEmployees);
     }
 
-    private void OpenCreateEmployeeDialog(object param)
+    public async Task InitializeAsync()
+    {
+        IEnumerable<Position> positions = await _employeeDataService.PositionRepository.GetPositionsAsync();
+        IEnumerable<Employee> employees = await _employeeDataService.EmployeeRepository.GetAllEmployeesAsync();
+        
+        Positions = new BindingList<Position>(positions.ToList());
+        AllEmployees =  new BindingList<Employee>(employees.ToList());
+    }
+
+    private void OpenAddEmployeeDialog(object param)
     {
         var newEmployeeDialog = _viewFactory.CreateView<NewEmployeeView>();
 
@@ -72,10 +71,14 @@ internal class ExploreEmployeesViewModel : INotifyPropertyChanged
 
             if (result == DialogResult.OK)
             {
-                AllEmployees = new BindingList<Employee>(_employeeDataService
+                //IEnumerable<Employee> employees = await _employeeDataService.EmployeeRepository.GetAllEmployeesAsync();
+                
+                //AllEmployees =  new BindingList<Employee>(employees.ToList());
+                
+                /*AllEmployees = new BindingList<Employee>(_employeeDataService
                     .GetEmployeeRepository()
                     .GetAllEmployees()
-                    .ToList());
+                    .ToList());*/
             }
 
             newEmployeeDialog.Close();
@@ -83,13 +86,13 @@ internal class ExploreEmployeesViewModel : INotifyPropertyChanged
     }
 
 
-    private void DeleteEmployees(object rawDeletableIndices)
+    private void RemoveEmployees(object rawDeletableIndices)
     {
         var employeeIndices = rawDeletableIndices as int[];
-        DeleteEmployees(employeeIndices);
+        RemoveEmployees(employeeIndices);
     }
     
-    private void DeleteEmployees(int[] deletableIndices)
+    private void RemoveEmployees(int[] deletableIndices)
     {
         if (deletableIndices != null && deletableIndices.Length > 0)
         {

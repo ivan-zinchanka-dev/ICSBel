@@ -40,6 +40,14 @@ internal class EmployeeDatabaseContext : IAsyncDisposable
         _connection = new SqlConnection(_options.Value.ConnectionString);
     }
 
+    public async Task<IEnumerable<Position>> GetPositionsAsync()
+    {
+        await ConnectToDatabaseAsync();
+        await InitializePositionsAsync();
+
+        return _cachedPositions.Values;
+    }
+
     public async Task<IEnumerable<Employee>> GetAllEmployeesAsync()
     {
         return await GetEmployeesAsync();
@@ -107,7 +115,7 @@ internal class EmployeeDatabaseContext : IAsyncDisposable
     private async Task<IEnumerable<Employee>> GetEmployeesAsync(int? positionId = null)
     {
         await ConnectToDatabaseAsync();
-        await InitializePositionsIfNeedAsync();
+        await InitializePositionsAsync();
         
         try
         {
@@ -183,16 +191,13 @@ internal class EmployeeDatabaseContext : IAsyncDisposable
         }
     }
 
-    private async Task InitializePositionsIfNeedAsync()
-    {
-        if (_cachedPositions == null)
-        {
-            await InitializePositionsAsync();
-        }
-    }
-
     private async Task InitializePositionsAsync()
     {
+        if (_cachedPositions != null)
+        {
+            return;
+        }
+        
         _cachedPositions = new Dictionary<int, Position>();
         
         try

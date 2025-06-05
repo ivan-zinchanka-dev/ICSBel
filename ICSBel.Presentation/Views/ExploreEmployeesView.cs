@@ -18,7 +18,20 @@ internal partial class ExploreEmployeesView : Form
         InitializeComponent();
         InitializeLayout();
     }
-    
+
+    /*public async Task InitializeAsync()
+    {
+        await _viewModel.InitializeAsync();
+        
+    }*/
+
+    protected override async void OnLoad(EventArgs eventArgs)
+    {
+        base.OnLoad(eventArgs);
+        
+        await _viewModel.InitializeAsync();
+    }
+
     private void InitializeLayout()
     {
         this.Text = "Сотрудники";
@@ -37,11 +50,12 @@ internal partial class ExploreEmployeesView : Form
         mainLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
         this.Controls.Add(mainLayout);
         
-        var positionFilter = new ComboBox
+        /*var positionFilter = new ComboBox
         {
             Dock = DockStyle.Fill,
             DropDownStyle = ComboBoxStyle.DropDownList
         };
+        
         positionFilter.Items.AddRange(_viewModel.Positions.ToArray());
         positionFilter.SelectedIndex = 0;
         positionFilter.SelectedIndexChanged += (s, e) =>
@@ -49,7 +63,7 @@ internal partial class ExploreEmployeesView : Form
             // TODO: Обновить таблицу по фильтру
         };
 
-        mainLayout.Controls.Add(positionFilter, 0, 0);
+        mainLayout.Controls.Add(positionFilter, 0, 0);*/
         
         var rightPanel = new FlowLayoutPanel
         {
@@ -58,16 +72,14 @@ internal partial class ExploreEmployeesView : Form
         };
 
         var addButton = new Button { Text = "Добавить", Width = 100 };
-        var deleteButton = new Button { Text = "Удалить", Width = 100 };
+        var removeButton = new Button { Text = "Удалить", Width = 100 };
         var reportButton = new Button { Text = "Отчёт", Width = 100 };
         
-        
-        //deleteButton.DataBindings.Add(new Binding("Command", DataContext, "AddCommand", true));
-        addButton.DataBindings.Add(new Binding("Command", _viewModel, nameof(_viewModel.CreateEmployeeCommand), true));
-        deleteButton.Click += OnRemoveEmployeesClick;
+        addButton.DataBindings.Add(new Binding("Command", _viewModel, nameof(_viewModel.AddEmployeeCommand), true));
+        removeButton.Click += OnRemoveEmployeesClick;
 
         rightPanel.Controls.Add(addButton);
-        rightPanel.Controls.Add(deleteButton);
+        rightPanel.Controls.Add(removeButton);
         rightPanel.Controls.Add(reportButton);
 
         mainLayout.Controls.Add(rightPanel, 1, 1);
@@ -111,7 +123,7 @@ internal partial class ExploreEmployeesView : Form
             deletableIndices[i] = _employeeTable.SelectedRows[i].Index;
         }
         
-        _viewModel.DeleteEmployeesCommand.Execute(deletableIndices);
+        _viewModel.RemoveEmployeesCommand.Execute(deletableIndices);
     }
 
     private void AddEmployeeTableColumn(string dataPropertyName, string headerText)
