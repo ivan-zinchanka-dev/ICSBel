@@ -41,4 +41,30 @@ public class EmployeeDatabaseContextTests
             }
         }
     }
+
+    [Test]
+    public async Task AddEmployeeAsync()
+    {
+        await using (var databaseContext = new EmployeeDatabaseContext(CreateLogger<EmployeeDatabaseContext>()))
+        {
+            bool result = await databaseContext.AddEmployeeAsync(
+                new EmployeeInputData("Иван", "Зинченко", 1, 2000, 1500));
+            
+            Assert.That(result, Is.True);
+        }
+    }
+    
+    [Test]
+    public async Task RemoveEmployeesAsync()
+    {
+        var employeeIds = new int[]{ 7, 8};
+        
+        await using (var databaseContext = new EmployeeDatabaseContext(CreateLogger<EmployeeDatabaseContext>()))
+        {
+            bool result = await databaseContext.RemoveEmployeesAsync(employeeIds);
+            
+            Assert.That(result, Is.True);
+        }
+    }
+
 }

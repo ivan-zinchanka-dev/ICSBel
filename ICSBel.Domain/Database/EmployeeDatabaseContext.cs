@@ -44,8 +44,61 @@ internal class EmployeeDatabaseContext : IAsyncDisposable
     {
         return await GetEmployeesAsync(positionId);
     }
-    
 
+    public async Task<bool> AddEmployeeAsync(EmployeeInputData employeeInputData)
+    {
+        await ConnectToDatabaseAsync();
+        
+        try
+        {
+            var command = new SqlCommand(QueryStrings.InsertEmployee, _connection);
+            command.Parameters.Add(new SqlParameter(ParamStrings.FirstName, employeeInputData.FirstName));
+            command.Parameters.Add(new SqlParameter(ParamStrings.LastName, employeeInputData.LastName));
+            command.Parameters.Add(new SqlParameter(ParamStrings.PositionId, employeeInputData.PositionId));
+            command.Parameters.Add(new SqlParameter(ParamStrings.BirthYear, employeeInputData.BirthYear));
+            command.Parameters.Add(new SqlParameter(ParamStrings.Salary, employeeInputData.Salary));
+            
+            int affectedRows = await command.ExecuteNonQueryAsync();
+            return affectedRows > 0;
+        }
+        catch (SqlException ex)
+        {
+            _logger.LogError(ex.Message);
+            return false;
+        }
+    }
+    
+    public async Task<bool> RemoveEmployeesAsync(int[] employeeIds)
+    {
+        if (employeeIds == null || employeeIds.Length == 0)
+        {
+            return false;
+        }
+        
+        await ConnectToDatabaseAsync();
+        
+        try
+        {
+            SqlParameter[] parameters = employeeIds
+                .Select((id, index) => new SqlParameter($"@id{index}", id))
+                .ToArray();
+
+            IEnumerable<string> paramNames = parameters.Select(param => param.ParameterName);
+            string inClause = string.Join(", ", paramNames);
+            
+            var command = new SqlCommand(string.Format(QueryStrings.DeleteEmployees, inClause), _connection);
+            command.Parameters.AddRange(parameters);
+            
+            int affectedRows = await command.ExecuteNonQueryAsync();
+            return affectedRows > 0;
+        }
+        catch (SqlException ex)
+        {
+            _logger.LogError(ex.Message);
+            return false;
+        }
+    }
+    
     private async Task<IEnumerable<Employee>> GetEmployeesAsync(int? positionId = null)
     {
         await ConnectToDatabaseAsync();
