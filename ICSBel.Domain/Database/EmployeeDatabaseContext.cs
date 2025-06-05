@@ -2,6 +2,7 @@
 using ICSBel.Domain.Models;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace ICSBel.Domain.Database;
 
@@ -25,14 +26,18 @@ internal class EmployeeDatabaseContext : IAsyncDisposable
         public const string DeleteEmployees = "DELETE FROM [Employees] WHERE [Id] IN ({0})";
     }
     
+    private readonly IOptions<EmployeeDatabaseSettings> _options;
     private readonly ILogger<EmployeeDatabaseContext> _logger;
     private readonly SqlConnection _connection;
     private Dictionary<int, Position> _cachedPositions;
     
-    public EmployeeDatabaseContext(ILogger<EmployeeDatabaseContext> logger)
+    public EmployeeDatabaseContext(
+        IOptions<EmployeeDatabaseSettings> options, 
+        ILogger<EmployeeDatabaseContext> logger)
     {
+        _options = options;
         _logger = logger;
-        _connection = new SqlConnection("Server=localhost;Database=ics.employees;Trusted_Connection=True;TrustServerCertificate=True;");
+        _connection = new SqlConnection(_options.Value.ConnectionString);
     }
 
     public async Task<IEnumerable<Employee>> GetAllEmployeesAsync()
