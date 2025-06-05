@@ -7,6 +7,6 @@ public interface IEmployeeRepository
     IEnumerable<Employee> GetAllEmployees();
     IEnumerable<Position> GetAllPositions();
     
-    bool CreateEmployee(EmployeeInputData newEmployeeData);
+    bool AddEmployee(EmployeeInputData newEmployeeData);
     
 }

@@ -77,7 +77,7 @@ internal class NewEmployeeViewModel : BaseViewModel
     {
         _employeeDataService
             .GetEmployeeRepository()
-            .CreateEmployee(new EmployeeInputData(FirstName, LastName, PositionId, BirthYear, Salary));
+            .AddEmployee(new EmployeeInputData(FirstName, LastName, PositionId, BirthYear, Salary));
     }
     
     private void Cancel(object param)

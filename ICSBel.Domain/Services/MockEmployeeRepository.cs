@@ -33,7 +33,7 @@ internal class MockEmployeeRepository : IEmployeeRepository
         return Positions;
     }
 
-    public bool CreateEmployee(EmployeeInputData newEmployeeData)
+    public bool AddEmployee(EmployeeInputData newEmployeeData)
     {
         Employee newEmployee = Map(newEmployeeData);
         Employees.Add(newEmployee);
