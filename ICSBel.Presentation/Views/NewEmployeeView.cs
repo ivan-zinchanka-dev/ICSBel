@@ -1,4 +1,5 @@
-﻿using ICSBel.Domain.Models;
+﻿using System.ComponentModel;
+using ICSBel.Domain.Models;
 using ICSBel.Presentation.ViewModels;
 
 namespace ICSBel.Presentation.Views;
@@ -15,6 +16,8 @@ internal partial class NewEmployeeView : Form
     
     private Button _submitButton;
     private Button _cancelButton;
+    
+    private readonly ErrorProvider _errorProvider = new ErrorProvider();
     
     public NewEmployeeView(NewEmployeeViewModel viewModel)
     {
@@ -40,6 +43,8 @@ internal partial class NewEmployeeView : Form
         Width = 400;
         Height = 300;
         
+        _errorProvider.ContainerControl = this;
+        
         var firstNameLabel = new Label { Text = "Имя:", Left = 10, Top = 20, Width = 100 };
         _firstNameInput = new TextBox { Left = 120, Top = 20, Width = 200 };
 
@@ -53,7 +58,7 @@ internal partial class NewEmployeeView : Form
         _positionInput.ValueMember = "Id";
         
         var birthYearLabel = new Label { Text = "Год рождения:", Left = 10, Top = 140, Width = 100 };
-        _birthYearInput = new NumericUpDown { Left = 120, Top = 140, Width = 200, /*Minimum = 1900, Maximum = DateTime.Now.Year*/ };
+        _birthYearInput = new NumericUpDown { Left = 120, Top = 140, Width = 200, Minimum = 1900, Maximum = DateTime.Now.Year };
 
         var salaryLabel = new Label { Text = "Зарплата:", Left = 10, Top = 180, Width = 100 };
         _salaryInput = new NumericUpDown { Left = 120, Top = 180, Width = 200, DecimalPlaces = 2, /*Maximum = 1_000_000*/ };
@@ -86,8 +91,11 @@ internal partial class NewEmployeeView : Form
         
         _submitButton.Click += (s, e) =>
         {
-            _viewModel.SubmitCommand.Execute(null);
-            DialogResult = DialogResult.OK;
+            if (_viewModel.SubmitCommand.CanExecute(null))
+            {
+                _viewModel.SubmitCommand.Execute(null);
+                DialogResult = DialogResult.OK;
+            }
         };
 
         _cancelButton.Click += (s, e) =>
@@ -96,9 +104,35 @@ internal partial class NewEmployeeView : Form
             DialogResult = DialogResult.Cancel;
         };
         
+        _viewModel.ErrorsChanged += OnValidationErrorsChanged;
+        
         /*_submitButton.DataBindings.Add("Command", _viewModel, nameof(NewEmployeeViewModel.SubmitCommand), true);
         _cancelButton.DataBindings.Add("Command", _viewModel, nameof(NewEmployeeViewModel.CancelCommand), true);
         */
         
     }
+
+    private void OnValidationErrorsChanged(object sender, DataErrorsChangedEventArgs eventArgs)
+    {
+        var control = MapPropertyToControl(eventArgs.PropertyName);
+        if (control != null)
+        {
+            IEnumerable<string> errors = _viewModel.GetErrors(eventArgs.PropertyName).Cast<string>();
+            _errorProvider.SetError(control, string.Join("\n", errors));
+        }
+    }
+
+    private Control MapPropertyToControl(string propertyName)
+    {
+        return propertyName switch
+        {
+            nameof(_viewModel.FirstName) => _firstNameInput,
+            nameof(_viewModel.LastName) => _lastNameInput,
+            nameof(_viewModel.SelectedPosition) => _positionInput,
+            nameof(_viewModel.BirthYear) => _birthYearInput,
+            nameof(_viewModel.Salary) => _salaryInput,
+            _ => null
+        };
+    }
+
 }
