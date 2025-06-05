@@ -6,11 +6,13 @@ using ICSBel.Domain.Services;
 using ICSBel.Presentation.Base;
 using ICSBel.Presentation.Factories;
 using ICSBel.Presentation.Views;
+using Microsoft.Extensions.Logging;
 
 namespace ICSBel.Presentation.ViewModels;
 
 internal class ExploreEmployeesViewModel : INotifyPropertyChanged
 {
+    private readonly ILogger<ExploreEmployeesViewModel> _logger;
     private readonly EmployeeDataService _employeeDataService;
     private readonly ViewFactory _viewFactory;
     
@@ -43,13 +45,17 @@ internal class ExploreEmployeesViewModel : INotifyPropertyChanged
 
     public event PropertyChangedEventHandler PropertyChanged;
 
-    public ExploreEmployeesViewModel(EmployeeDataService employeeDataService, ViewFactory viewFactory)
+    public ExploreEmployeesViewModel(
+        ILogger<ExploreEmployeesViewModel> logger,
+        EmployeeDataService employeeDataService, 
+        ViewFactory viewFactory)
     {
         _employeeDataService = employeeDataService;
         _viewFactory = viewFactory;
-
+        _logger = logger;
+        
         AddEmployeeCommand = new RelayCommand(OpenAddEmployeeDialog);
-        RemoveEmployeesCommand = new RelayCommand(RemoveEmployees);
+        RemoveEmployeesCommand = new RelayCommand(RemoveEmployeesAsync);
     }
 
     public async Task InitializeAsync()
@@ -86,23 +92,45 @@ internal class ExploreEmployeesViewModel : INotifyPropertyChanged
     }
 
 
-    private void RemoveEmployees(object rawDeletableIndices)
+    private async void RemoveEmployeesAsync(object rawDeletableIndices)
     {
-        var employeeIndices = rawDeletableIndices as int[];
-        RemoveEmployees(employeeIndices);
-    }
-    
-    private void RemoveEmployees(int[] deletableIndices)
-    {
-        if (deletableIndices != null && deletableIndices.Length > 0)
+        try
         {
-            foreach (int index in deletableIndices)
-            {
-                _employees.RemoveAt(index);
-            }
+            var employeeIndices = rawDeletableIndices as int[];
+            await RemoveEmployeesAsync(employeeIndices);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "An unhandled exception occurred");
         }
     }
     
+    private async Task RemoveEmployeesAsync(int[] employeeIndices)
+    {
+        if (employeeIndices != null && employeeIndices.Length > 0)
+        {
+            var removableEmployees = new List<Employee>();
+            
+            foreach (int index in employeeIndices)
+            {
+                removableEmployees.Add(_employees[index]);
+            }
+            
+            int[] ids = removableEmployees
+                .Select(employee => employee.Id)
+                .ToArray();
+
+            await _employeeDataService.EmployeeRepository.RemoveEmployeesAsync(ids);
+            await UpdateEmployeesAsync();
+        }
+    }
+
+    private async Task UpdateEmployeesAsync()
+    {
+        IEnumerable<Employee> employees = await _employeeDataService.EmployeeRepository.GetAllEmployeesAsync();
+        AllEmployees =  new BindingList<Employee>(employees.ToList());
+    }
+
     protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
