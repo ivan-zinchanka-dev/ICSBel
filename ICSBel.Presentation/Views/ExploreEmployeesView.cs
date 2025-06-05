@@ -4,7 +4,7 @@ using ICSBel.Presentation.ViewModels;
 
 namespace ICSBel.Presentation.Views;
 
-public partial class ExploreEmployeesView : Form
+internal partial class ExploreEmployeesView : Form
 {
     private readonly ExploreEmployeesViewModel _viewModel;
 
@@ -16,10 +16,10 @@ public partial class ExploreEmployeesView : Form
         DataContext = _viewModel;
         
         InitializeComponent();
-        CreateView();
+        InitializeLayout();
     }
     
-    private void CreateView()
+    private void InitializeLayout()
     {
         this.Text = "Сотрудники";
         this.Width = 800;
@@ -63,7 +63,7 @@ public partial class ExploreEmployeesView : Form
         
         
         //deleteButton.DataBindings.Add(new Binding("Command", DataContext, "AddCommand", true));
-        
+        addButton.DataBindings.Add(new Binding("Command", _viewModel, nameof(_viewModel.CreateEmployeeCommand), true));
         deleteButton.Click += OnRemoveEmployeesClick;
 
         rightPanel.Controls.Add(addButton);

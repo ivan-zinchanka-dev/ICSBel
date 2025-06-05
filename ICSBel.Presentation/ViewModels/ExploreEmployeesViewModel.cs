@@ -4,15 +4,19 @@ using System.Windows.Input;
 using ICSBel.Domain.Models;
 using ICSBel.Domain.Services;
 using ICSBel.Presentation.Base;
+using ICSBel.Presentation.Factories;
+using ICSBel.Presentation.Views;
 
 namespace ICSBel.Presentation.ViewModels;
 
-public class ExploreEmployeesViewModel : INotifyPropertyChanged
+internal class ExploreEmployeesViewModel : INotifyPropertyChanged
 {
+    private readonly ViewFactory _viewFactory;
+    
     private EmployeeDataService _employeeDataService;
     private BindingList<Employee> _employees;
     private BindingList<Position> _positions;
-        
+    
     public BindingList<Employee> AllEmployees
     {
         get => _employees;
@@ -39,9 +43,12 @@ public class ExploreEmployeesViewModel : INotifyPropertyChanged
 
     public event PropertyChangedEventHandler PropertyChanged;
 
-    public ExploreEmployeesViewModel(EmployeeDataService employeeDataService)
+    public ExploreEmployeesViewModel(EmployeeDataService employeeDataService, ViewFactory viewFactory)
     {
         _employeeDataService = employeeDataService;
+        _viewFactory = viewFactory;
+
+        CreateEmployeeCommand = new RelayCommand(OpenCreateEmployeeDialog);
         DeleteEmployeesCommand = new RelayCommand(DeleteEmployees);
         
         _employees = new BindingList<Employee>(_employeeDataService
@@ -54,8 +61,18 @@ public class ExploreEmployeesViewModel : INotifyPropertyChanged
             .GetAllPositions()
             .ToList());
     }
-    
-    
+
+    private void OpenCreateEmployeeDialog(object param)
+    {
+        var newEmployeeDialog = _viewFactory.CreateView<NewEmployeeView>();
+
+        if (newEmployeeDialog != null)
+        {
+            DialogResult result = newEmployeeDialog.ShowDialog();
+        }
+    }
+
+
     private void DeleteEmployees(object rawDeletableIndices)
     {
         var employeeIndices = rawDeletableIndices as int[];

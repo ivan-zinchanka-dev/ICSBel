@@ -32,4 +32,22 @@ internal class MockEmployeeRepository : IEmployeeRepository
     {
         return Positions;
     }
+
+    public bool CreateEmployee(EmployeeInputData newEmployeeData)
+    {
+        Employee newEmployee = Map(newEmployeeData);
+        Employees.Add(newEmployee);
+        return true;
+    }
+
+    private Employee Map(EmployeeInputData inputData)
+    {
+        return new Employee(
+            Employees.Last().Id + 1,
+            inputData.FirstName,
+            inputData.LastName,
+            Positions.Find(position => position.Id == inputData.PositionId),
+            inputData.BirthYear,
+            inputData.Salary);
+    }
 }

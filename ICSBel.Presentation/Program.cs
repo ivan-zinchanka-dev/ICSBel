@@ -1,7 +1,9 @@
 using ICSBel.Domain.Services;
+using ICSBel.Presentation.Factories;
 using ICSBel.Presentation.ViewModels;
 using ICSBel.Presentation.Views;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace ICSBel.Presentation;
 
@@ -14,13 +16,27 @@ public static class Program
         Application.SetCompatibleTextRenderingDefault(false);
         
         var services = new ServiceCollection();
-        services.AddSingleton<EmployeeDataService>();
-        services.AddTransient<ExploreEmployeesViewModel>();
-        services.AddTransient<ExploreEmployeesView>();
+        services.ConfigureServices();
         
         IServiceProvider serviceProvider = services.BuildServiceProvider();
 
-        var mainView = serviceProvider.GetService<ExploreEmployeesView>();
+        var mainView = serviceProvider.GetRequiredService<ExploreEmployeesView>();
         Application.Run(mainView);
+    }
+
+    public static void ConfigureServices(this IServiceCollection services)
+    {
+        services.AddLogging(configure =>
+        {
+            configure.AddConsole();
+            configure.SetMinimumLevel(LogLevel.Debug);
+        });
+        
+        services.AddSingleton<EmployeeDataService>();
+        services.AddSingleton<ViewFactory>();
+        services.AddTransient<ExploreEmployeesViewModel>();
+        services.AddTransient<ExploreEmployeesView>();
+        services.AddTransient<NewEmployeeViewModel>();
+        services.AddTransient<NewEmployeeView>();
     }
 }

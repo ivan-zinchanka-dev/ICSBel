@@ -12,6 +12,9 @@
       <Compile Update="Views\ExploreEmployeesView.cs">
         <SubType>Form</SubType>
       </Compile>
+      <Compile Update="Views\NewEmployeeView.cs">
+        <SubType>Form</SubType>
+      </Compile>
     </ItemGroup>
 
     <ItemGroup>
@@ -21,6 +24,7 @@
     <ItemGroup>
       <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.5" />
       <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.5" />
+      <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="9.0.5" />
     </ItemGroup>
 
 </Project>
