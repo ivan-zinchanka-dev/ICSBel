@@ -19,8 +19,12 @@ public class EmployeeDatabaseContextTests
     public void SetUpFixture()
     {
         _logger = LoggingUtility.CreateLogger<EmployeeDatabaseContext>();
-        var settings = new EmployeeDatabaseSettings(
-            "Server=localhost;Database=ics.employees;Trusted_Connection=True;TrustServerCertificate=True;");
+        var settings = new EmployeeDatabaseSettings()
+        {
+            ConnectionString = 
+                "Server=localhost;Database=ics.employees;Trusted_Connection=True;TrustServerCertificate=True;",
+        };
+        
         _options = Options.Create(settings);
     }
 

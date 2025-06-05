@@ -18,8 +18,9 @@ internal class ExploreEmployeesViewModel : INotifyPropertyChanged
     
     private BindingList<Employee> _employees;
     private BindingList<Position> _positions;
+    private Position _selectedPosition;
     
-    public BindingList<Employee> AllEmployees
+    public BindingList<Employee> Employees
     {
         get => _employees;
         set
@@ -38,8 +39,18 @@ internal class ExploreEmployeesViewModel : INotifyPropertyChanged
             OnPropertyChanged();
         }
     }
-
-
+    
+    public Position SelectedPosition
+    {
+        get => _selectedPosition;
+        set
+        {
+            _selectedPosition = value;
+            OnPropertyChanged();
+            UpdateEmployeesAsync();
+        }
+    }
+    
     public ICommand AddEmployeeCommand { get; }
     public ICommand RemoveEmployeesCommand { get; }
 
@@ -60,11 +71,27 @@ internal class ExploreEmployeesViewModel : INotifyPropertyChanged
 
     public async Task InitializeAsync()
     {
-        IEnumerable<Position> positions = await _employeeDataService.PositionRepository.GetPositionsAsync();
-        IEnumerable<Employee> employees = await _employeeDataService.EmployeeRepository.GetAllEmployeesAsync();
+        IEnumerable<Position> sourcePositions = await _employeeDataService.PositionRepository.GetPositionsAsync();
+        Task<IEnumerable<Employee>> getEmployeesTask = GetEmployeesAsync();
         
-        Positions = new BindingList<Position>(positions.ToList());
-        AllEmployees =  new BindingList<Employee>(employees.ToList());
+        List<Position> positions = sourcePositions.ToList();
+        positions.Insert(0, Position.All);
+        Positions = new BindingList<Position>(positions);
+        
+        IEnumerable<Employee> employees = await getEmployeesTask;
+        Employees =  new BindingList<Employee>(employees.ToList());
+    }
+
+    private async Task<IEnumerable<Employee>> GetEmployeesAsync()
+    {
+        if (_selectedPosition == null || _selectedPosition.Id == Position.All.Id)
+        {
+            return await _employeeDataService.EmployeeRepository.GetAllEmployeesAsync();
+        }
+        else
+        {
+            return await _employeeDataService.EmployeeRepository.GetFilteredEmployeesAsync(_selectedPosition.Id);
+        }
     }
 
     private async void AddNewEmployeeAsync(object param)
@@ -126,10 +153,11 @@ internal class ExploreEmployeesViewModel : INotifyPropertyChanged
 
     private async Task UpdateEmployeesAsync()
     {
-        IEnumerable<Employee> employees = await _employeeDataService.EmployeeRepository.GetAllEmployeesAsync();
-        AllEmployees =  new BindingList<Employee>(employees.ToList());
+        IEnumerable<Employee> employees = await GetEmployeesAsync();
+        Employees = new BindingList<Employee>(employees.ToList());
     }
 
+    
     protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));

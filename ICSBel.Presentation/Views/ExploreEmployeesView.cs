@@ -8,6 +8,7 @@ internal partial class ExploreEmployeesView : Form
 {
     private readonly ExploreEmployeesViewModel _viewModel;
 
+    private ComboBox _positionFilter;
     private DataGridView _employeeTable;
     
     public ExploreEmployeesView(ExploreEmployeesViewModel viewModel)
@@ -17,6 +18,7 @@ internal partial class ExploreEmployeesView : Form
         
         InitializeComponent();
         InitializeLayout();
+        SetupBindings();
     }
 
     protected override async void OnLoad(EventArgs eventArgs)
@@ -27,9 +29,9 @@ internal partial class ExploreEmployeesView : Form
 
     private void InitializeLayout()
     {
-        this.Text = "Сотрудники";
-        this.Width = 800;
-        this.Height = 500;
+        Text = "Сотрудники";
+        Width = 800;
+        Height = 500;
 
         var mainLayout = new TableLayoutPanel
         {
@@ -41,22 +43,19 @@ internal partial class ExploreEmployeesView : Form
         mainLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 20));
         mainLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 40));
         mainLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
-        this.Controls.Add(mainLayout);
+        Controls.Add(mainLayout);
         
-        /*var positionFilter = new ComboBox
+        _positionFilter = new ComboBox
         {
             Dock = DockStyle.Fill,
-            DropDownStyle = ComboBoxStyle.DropDownList
+            DropDownStyle = ComboBoxStyle.DropDownList,
+            DisplayMember = "Name", 
+            ValueMember = "Id",
         };
         
-        positionFilter.Items.AddRange(_viewModel.Positions.ToArray());
-        positionFilter.SelectedIndex = 0;
-        positionFilter.SelectedIndexChanged += (s, e) =>
-        {
-            // TODO: Обновить таблицу по фильтру
-        };
+        _positionFilter.SelectedIndexChanged += OnFilterAccept;
 
-        mainLayout.Controls.Add(positionFilter, 0, 0);*/
+        mainLayout.Controls.Add(_positionFilter, 0, 0);
         
         var rightPanel = new FlowLayoutPanel
         {
@@ -92,19 +91,24 @@ internal partial class ExploreEmployeesView : Form
         AddEmployeeTableColumn("Position", "Должность");
         AddEmployeeTableColumn("BirthYear", "Год рождения");
         AddEmployeeTableColumn("Salary", "Зарплата");
-
-        //_employeeTable.DataSource = _viewModel.AllEmployees;
-        _employeeTable.DataBindings.Add(new Binding(
-            nameof(_employeeTable.DataSource), 
-            _viewModel, 
-            nameof(_viewModel.AllEmployees), 
-            false, DataSourceUpdateMode.OnPropertyChanged));
-        
         
         mainLayout.Controls.Add(_employeeTable, 0, 1);
         mainLayout.SetColumnSpan(_employeeTable, 1);
 
         _viewModel.PropertyChanged += OnViewModelPropertyChanged;
+    }
+
+    private void OnFilterAccept(object sender, EventArgs eventArgs)
+    {
+        _employeeTable.Focus();
+    }
+
+    private void SetupBindings()
+    {
+        _employeeTable.DataBindings.Add(nameof(DataGridView.DataSource), _viewModel, nameof(_viewModel.Employees), false, DataSourceUpdateMode.OnPropertyChanged);
+        
+        _positionFilter.DataBindings.Add(nameof(ComboBox.DataSource), _viewModel, nameof(_viewModel.Positions), true, DataSourceUpdateMode.OnPropertyChanged);
+        _positionFilter.DataBindings.Add(nameof(ComboBox.SelectedItem), _viewModel, nameof(_viewModel.SelectedPosition), true, DataSourceUpdateMode.OnPropertyChanged);
     }
 
     private void OnRemoveEmployeesClick(object sender, EventArgs eventArgs)
@@ -130,9 +134,9 @@ internal partial class ExploreEmployeesView : Form
 
     private void OnViewModelPropertyChanged(object sender, PropertyChangedEventArgs eventArgs)
     {
-        /*if (eventArgs.PropertyName == nameof(_viewModel.AllEmployees))
+        /*if (eventArgs.PropertyName == nameof(_viewModel.SelectedPosition))
         {
-            _employeeTable.DataSource = _viewModel.AllEmployees;
+            await _viewModel.UpdateEmployeesAsync();
         }*/
     }
 }

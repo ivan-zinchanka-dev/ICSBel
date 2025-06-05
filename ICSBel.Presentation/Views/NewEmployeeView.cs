@@ -53,10 +53,11 @@ internal partial class NewEmployeeView : Form
         _lastNameInput = new TextBox { Left = 120, Top = 60, Width = 200 };
 
         var positionLabel = new Label { Text = "Должность:", Left = 10, Top = 100, Width = 100 };
-        _positionInput = new ComboBox { Left = 120, Top = 100, Width = 200 };
-        _positionInput.DropDownStyle = ComboBoxStyle.DropDownList;
-        _positionInput.DisplayMember = "Name";
-        _positionInput.ValueMember = "Id";
+        _positionInput = new ComboBox
+        {
+            Left = 120, Top = 100, Width = 200, DropDownStyle = ComboBoxStyle.DropDownList,
+            DisplayMember = "Name", ValueMember = "Id",
+        };
         
         var birthYearLabel = new Label { Text = "Год рождения:", Left = 10, Top = 140, Width = 100 };
         _birthYearInput = new NumericUpDown { Left = 120, Top = 140, Width = 200, 
@@ -88,7 +89,6 @@ internal partial class NewEmployeeView : Form
         _firstNameInput.DataBindings.Add("Text", _viewModel, nameof(NewEmployeeViewModel.FirstName), false, DataSourceUpdateMode.OnPropertyChanged);
         _lastNameInput.DataBindings.Add("Text", _viewModel, nameof(NewEmployeeViewModel.LastName), false, DataSourceUpdateMode.OnPropertyChanged);
         
-        _positionInput.DataSource = _viewModel.Positions;
         _positionInput.DataBindings.Add("DataSource", _viewModel, nameof(_viewModel.Positions), true, DataSourceUpdateMode.OnPropertyChanged);
         _positionInput.DataBindings.Add("SelectedItem", _viewModel, nameof(_viewModel.SelectedPosition), false, DataSourceUpdateMode.OnPropertyChanged);
         
