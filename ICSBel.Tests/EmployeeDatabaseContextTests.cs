@@ -14,7 +14,6 @@ public class EmployeeDatabaseContextTests
     [Test]
     public async Task PrintAllEmployees()
     {
-
         await using (var databaseContext = new EmployeeDatabaseContext(CreateLogger<EmployeeDatabaseContext>()))
         {
             IEnumerable<Employee> employees = await databaseContext.GetAllEmployeesAsync();
@@ -24,6 +23,22 @@ public class EmployeeDatabaseContextTests
                 Console.WriteLine(JsonConvert.SerializeObject(employee));
             }
         }
-        
+    }
+    
+    [Test]
+    [TestCase(1)]
+    [TestCase(2)]
+    [TestCase(3)]
+    public async Task PrintFilteredEmployees(int positionId)
+    {
+        await using (var databaseContext = new EmployeeDatabaseContext(CreateLogger<EmployeeDatabaseContext>()))
+        {
+            IEnumerable<Employee> employees = await databaseContext.GetFilteredEmployeesAsync(positionId);
+
+            foreach (Employee employee in employees)
+            {
+                Console.WriteLine(JsonConvert.SerializeObject(employee));
+            }
+        }
     }
 }

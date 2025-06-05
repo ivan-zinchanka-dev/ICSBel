@@ -35,17 +35,36 @@ internal class EmployeeDatabaseContext : IAsyncDisposable
         _connection = new SqlConnection("Server=localhost;Database=ics.employees;Trusted_Connection=True;TrustServerCertificate=True;");
     }
 
-   
+    public async Task<IEnumerable<Employee>> GetAllEmployeesAsync()
+    {
+        return await GetEmployeesAsync();
+    }
+
+    public async Task<IEnumerable<Employee>> GetFilteredEmployeesAsync(int positionId)
+    {
+        return await GetEmployeesAsync(positionId);
+    }
     
 
-    public async Task<IEnumerable<Employee>> GetAllEmployeesAsync()
+    private async Task<IEnumerable<Employee>> GetEmployeesAsync(int? positionId = null)
     {
         await ConnectToDatabaseAsync();
         await InitializePositionsIfNeedAsync();
         
         try
         {
-            var command = new SqlCommand(QueryStrings.SelectAllEmployees, _connection);
+            SqlCommand command;
+            
+            if (positionId.HasValue)
+            {
+                command = new SqlCommand(QueryStrings.SelectFilteredEmployees, _connection);
+                command.Parameters.Add(new SqlParameter(ParamStrings.PositionId, positionId));
+            }
+            else
+            {
+                command = new SqlCommand(QueryStrings.SelectAllEmployees, _connection);
+            }
+            
             SqlDataReader reader = await command.ExecuteReaderAsync();
             
             var employees = new List<Employee>();
