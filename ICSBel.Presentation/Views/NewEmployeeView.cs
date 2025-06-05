@@ -9,7 +9,7 @@ internal partial class NewEmployeeView : Form
     
     private TextBox _firstNameInput;
     private TextBox _lastNameInput;
-    private NumericUpDown _positionIdInput;
+    private ComboBox _positionInput;
     private NumericUpDown _birthYearInput;
     private NumericUpDown _salaryInput;
     
@@ -26,6 +26,12 @@ internal partial class NewEmployeeView : Form
         SetupBindings();
     }
     
+    protected override async void OnLoad(EventArgs eventArgs)
+    {
+        base.OnLoad(eventArgs);
+        await _viewModel.InitializeAsync();
+    }
+    
     private void InitializeLayout()
     {
         Text = "Новый сотрудник";
@@ -40,9 +46,12 @@ internal partial class NewEmployeeView : Form
         var lastNameLabel = new Label { Text = "Фамилия:", Left = 10, Top = 60, Width = 100 };
         _lastNameInput = new TextBox { Left = 120, Top = 60, Width = 200 };
 
-        var positionLabel = new Label { Text = "ID должности:", Left = 10, Top = 100, Width = 100 };
-        _positionIdInput = new NumericUpDown { Left = 120, Top = 100, Width = 200, /*Minimum = 1, Maximum = 100 */};
-
+        var positionLabel = new Label { Text = "Должность:", Left = 10, Top = 100, Width = 100 };
+        _positionInput = new ComboBox { Left = 120, Top = 100, Width = 200 };
+        _positionInput.DropDownStyle = ComboBoxStyle.DropDownList;
+        _positionInput.DisplayMember = "Name";
+        _positionInput.ValueMember = "Id";
+        
         var birthYearLabel = new Label { Text = "Год рождения:", Left = 10, Top = 140, Width = 100 };
         _birthYearInput = new NumericUpDown { Left = 120, Top = 140, Width = 200, /*Minimum = 1900, Maximum = DateTime.Now.Year*/ };
 
@@ -56,7 +65,7 @@ internal partial class NewEmployeeView : Form
         {
             firstNameLabel, _firstNameInput,
             lastNameLabel, _lastNameInput,
-            positionLabel, _positionIdInput,
+            positionLabel, _positionInput,
             birthYearLabel, _birthYearInput,
             salaryLabel, _salaryInput,
             _submitButton, _cancelButton
@@ -67,7 +76,11 @@ internal partial class NewEmployeeView : Form
     {
         _firstNameInput.DataBindings.Add("Text", _viewModel, nameof(NewEmployeeViewModel.FirstName), false, DataSourceUpdateMode.OnPropertyChanged);
         _lastNameInput.DataBindings.Add("Text", _viewModel, nameof(NewEmployeeViewModel.LastName), false, DataSourceUpdateMode.OnPropertyChanged);
-        _positionIdInput.DataBindings.Add("Value", _viewModel, nameof(NewEmployeeViewModel.PositionId), false, DataSourceUpdateMode.OnPropertyChanged);
+        
+        _positionInput.DataSource = _viewModel.Positions;
+        _positionInput.DataBindings.Add("DataSource", _viewModel, nameof(_viewModel.Positions), true, DataSourceUpdateMode.OnPropertyChanged);
+        _positionInput.DataBindings.Add("SelectedItem", _viewModel, nameof(_viewModel.SelectedPosition), false, DataSourceUpdateMode.OnPropertyChanged);
+        
         _birthYearInput.DataBindings.Add("Value", _viewModel, nameof(NewEmployeeViewModel.BirthYear), false, DataSourceUpdateMode.OnPropertyChanged);
         _salaryInput.DataBindings.Add("Value", _viewModel, nameof(NewEmployeeViewModel.Salary), false, DataSourceUpdateMode.OnPropertyChanged);
         

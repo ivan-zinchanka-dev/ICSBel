@@ -1,4 +1,5 @@
-﻿using System.Windows.Input;
+﻿using System.ComponentModel;
+using System.Windows.Input;
 using ICSBel.Domain.Models;
 using ICSBel.Domain.Services;
 using ICSBel.Presentation.Base;
@@ -15,6 +16,9 @@ internal class NewEmployeeViewModel : BaseViewModel
     private int _birthYear;
     private decimal _salary;
 
+    private BindingList<Position> _positions;
+    private Position _selectedPosition;
+    
     public string FirstName
     {
         get => _firstName;
@@ -34,13 +38,13 @@ internal class NewEmployeeViewModel : BaseViewModel
             OnPropertyChanged();
         }
     }
-
-    public int PositionId
+    
+    public Position SelectedPosition
     {
-        get => _positionId;
+        get => _selectedPosition;
         set
         {
-            _positionId = value; 
+            _selectedPosition = value;
             OnPropertyChanged();
         }
     }
@@ -65,7 +69,18 @@ internal class NewEmployeeViewModel : BaseViewModel
         }
     }
 
-    public ICommand SubmitCommand => new RelayCommand(Submit);
+    public BindingList<Position> Positions
+    {
+        get => _positions;
+        set
+        {
+            _positions = value;
+            OnPropertyChanged();
+        }
+    }
+    
+    
+    public ICommand SubmitCommand => new RelayCommand(SubmitAsync);
     public ICommand CancelCommand => new RelayCommand(Cancel);
     
     public NewEmployeeViewModel(EmployeeDataService employeeDataService)
@@ -73,11 +88,17 @@ internal class NewEmployeeViewModel : BaseViewModel
         _employeeDataService = employeeDataService;
     }
 
-    private void Submit(object param)
+    public async Task InitializeAsync()
     {
-        /*_employeeDataService
-            .GetEmployeeRepository()
-            .AddEmployee(new EmployeeInputData(FirstName, LastName, PositionId, BirthYear, Salary));*/
+        IEnumerable<Position> positions = await _employeeDataService.PositionRepository.GetPositionsAsync();
+        Positions = new BindingList<Position>(positions.ToList());
+    }
+    
+    private async void SubmitAsync(object param)
+    {
+        bool result = await _employeeDataService
+            .EmployeeRepository
+            .AddEmployeeAsync(new EmployeeInputData(FirstName, LastName, SelectedPosition.Id, BirthYear, Salary));
     }
     
     private void Cancel(object param)

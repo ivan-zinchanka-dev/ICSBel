@@ -54,7 +54,7 @@ internal class ExploreEmployeesViewModel : INotifyPropertyChanged
         _viewFactory = viewFactory;
         _logger = logger;
         
-        AddEmployeeCommand = new RelayCommand(OpenAddEmployeeDialog);
+        AddEmployeeCommand = new RelayCommand(AddNewEmployeeAsync);
         RemoveEmployeesCommand = new RelayCommand(RemoveEmployeesAsync);
     }
 
@@ -67,31 +67,30 @@ internal class ExploreEmployeesViewModel : INotifyPropertyChanged
         AllEmployees =  new BindingList<Employee>(employees.ToList());
     }
 
-    private void OpenAddEmployeeDialog(object param)
+    private async void AddNewEmployeeAsync(object param)
     {
-        var newEmployeeDialog = _viewFactory.CreateView<NewEmployeeView>();
-
-        if (newEmployeeDialog != null)
+        try
         {
-            DialogResult result = newEmployeeDialog.ShowDialog();
+            var newEmployeeDialog = _viewFactory.CreateView<NewEmployeeView>();
 
-            if (result == DialogResult.OK)
+            if (newEmployeeDialog != null)
             {
-                //IEnumerable<Employee> employees = await _employeeDataService.EmployeeRepository.GetAllEmployeesAsync();
-                
-                //AllEmployees =  new BindingList<Employee>(employees.ToList());
-                
-                /*AllEmployees = new BindingList<Employee>(_employeeDataService
-                    .GetEmployeeRepository()
-                    .GetAllEmployees()
-                    .ToList());*/
-            }
+                DialogResult result = newEmployeeDialog.ShowDialog();
 
-            newEmployeeDialog.Close();
+                if (result == DialogResult.OK)
+                {
+                    await UpdateEmployeesAsync();
+                }
+
+                newEmployeeDialog.Close();
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "An unhandled exception occurred while adding new employee");
         }
     }
-
-
+    
     private async void RemoveEmployeesAsync(object rawDeletableIndices)
     {
         try
@@ -101,7 +100,7 @@ internal class ExploreEmployeesViewModel : INotifyPropertyChanged
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "An unhandled exception occurred");
+            _logger.LogError(ex, "An unhandled exception occurred while removing employees");
         }
     }
     
