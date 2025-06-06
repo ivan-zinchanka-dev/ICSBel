@@ -165,9 +165,18 @@ internal class ExploreEmployeesViewModel : INotifyPropertyChanged
         Employees = new BindingList<Employee>(employees.ToList());
     }
 
-    private void Report(object param)
+    private async void Report(object param)
     {
-        _reportService.GenerateAndOpenSalaryReport();
+        try
+        {
+            IEnumerable<PositionSalary> positionSalaries = 
+                await _employeeDataService.ReportService.GetPositionSalaryReportAsync();
+            await _reportService.CreateAndOpenSalaryReportAsync(positionSalaries);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "An unhandled exception occurred while reporting");
+        }
     }
     
     protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)

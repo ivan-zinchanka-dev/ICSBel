@@ -8,6 +8,9 @@ namespace ICSBel.Domain.Database;
 
 internal class EmployeeDatabaseContext : IAsyncDisposable
 {
+    private const string PositionIdParam = "PositionId";
+    private const string AverageSalaryParam = "AverageSalary";
+    
     private static class ParamStrings
     {
         public const string FirstName = "@FirstName";
@@ -24,6 +27,7 @@ internal class EmployeeDatabaseContext : IAsyncDisposable
         public const string SelectFilteredEmployees = "SELECT * FROM [Employees] WHERE [Employees].PositionId = @PositionId";
         public const string InsertEmployee = "INSERT INTO [Employees] (FirstName, LastName, PositionId, BirthYear, Salary) VALUES (@FirstName, @LastName, @PositionId, @BirthYear, @Salary)";
         public const string DeleteEmployees = "DELETE FROM [Employees] WHERE [Id] IN ({0})";
+        public const string SelectPositionSalaries = "SELECT p.Id AS PositionId, AVG(e.Salary) AS AverageSalary FROM Positions p INNER JOIN Employees e ON p.Id = e.PositionId GROUP BY p.Id ORDER BY p.Id";
     }
     
     private readonly IOptions<EmployeeDatabaseSettings> _options;
@@ -111,7 +115,41 @@ internal class EmployeeDatabaseContext : IAsyncDisposable
             return false;
         }
     }
-    
+
+    public async Task<IEnumerable<PositionSalary>> GetPositionSalaryReportAsync()
+    {
+        await ConnectToDatabaseAsync();
+        await InitializePositionsAsync();
+        
+        try
+        {
+            var command = new SqlCommand(QueryStrings.SelectPositionSalaries, _connection);
+            SqlDataReader reader = await command.ExecuteReaderAsync();
+            
+            var report = new List<PositionSalary>();
+            
+            if (reader.HasRows)
+            {
+                while (reader.Read())
+                {
+                    var entry = new PositionSalary(
+                        GetPositionById(reader.GetInt32(PositionIdParam)), 
+                        reader.GetDecimal(AverageSalaryParam));
+                    
+                    report.Add(entry);
+                }
+            }
+
+            await reader.CloseAsync();
+            return report;
+        }
+        catch (SqlException ex)
+        {
+            _logger.LogError(ex.Message);
+            return new List<PositionSalary>();
+        }
+    }
+
     private async Task<IEnumerable<Employee>> GetEmployeesAsync(int? positionId = null)
     {
         await ConnectToDatabaseAsync();
@@ -134,7 +172,6 @@ internal class EmployeeDatabaseContext : IAsyncDisposable
             SqlDataReader reader = await command.ExecuteReaderAsync();
             
             var employees = new List<Employee>();
-            const string positionIdParam = "PositionId";
             
             if (reader.HasRows)
             {
@@ -144,7 +181,7 @@ internal class EmployeeDatabaseContext : IAsyncDisposable
                         reader.GetInt32(nameof(Employee.Id)),
                         reader.GetString(nameof(Employee.FirstName)),
                         reader.GetString(nameof(Employee.LastName)),
-                        GetPositionById(reader.GetInt32(positionIdParam)),
+                        GetPositionById(reader.GetInt32(PositionIdParam)),
                         reader.GetInt32(nameof(Employee.BirthYear)),
                         reader.GetDecimal(nameof(Employee.Salary)));
                     

@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System.Collections;
+using System.Diagnostics;
 using ICSBel.Domain.Models;
 using Microsoft.Extensions.Logging;
 using Microsoft.Reporting.NETCore;
@@ -19,15 +20,8 @@ public class ReportService
         _logger = logger;
     }
 
-    public void GenerateAndOpenSalaryReport()
+    public async Task CreateAndOpenSalaryReportAsync(IEnumerable<PositionSalary> positionSalaries)
     {
-        var data = new List<PositionSalary>
-        {
-            new PositionSalary { Position = "Программист", AverageSalary = 120000 },
-            new PositionSalary { Position = "Аналитик", AverageSalary = 90000 },
-            new PositionSalary { Position = "Менеджер", AverageSalary = 75000 }
-        };
-        
         string templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, PositionSalaryTemplate);
 
         if (!File.Exists(templatePath))
@@ -36,17 +30,25 @@ public class ReportService
             return;
         }
 
-        byte[] pdfContent = GeneratePdfContent(templatePath, data);
+        byte[] pdfContent = GeneratePdfContent(templatePath, MapPositionSalaries(positionSalaries));
         
         string createdFilePath = Path.Combine(Path.GetTempPath(), ReportFileName);
-        File.WriteAllBytes(createdFilePath, pdfContent);
+        await File.WriteAllBytesAsync(createdFilePath, pdfContent);
         
         _logger.LogInformation("Generated report file: {0}", createdFilePath);
 
         OpenFile(createdFilePath);
     }
 
-    private byte[] GeneratePdfContent(string templatePath, List<PositionSalary> data)
+    private IEnumerable MapPositionSalaries(IEnumerable<PositionSalary> positionSalaries)
+    {
+        return positionSalaries.Select(positionSalary => new {
+            Position = positionSalary.Position.Name,
+            AverageSalary = positionSalary.AverageSalary
+        });
+    }
+
+    private byte[] GeneratePdfContent(string templatePath, IEnumerable data)
     {
         var report = new LocalReport();
         report.ReportPath = templatePath;

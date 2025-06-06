@@ -2,15 +2,10 @@
 
 public class PositionSalary
 {
-    public string Position { get; set; }
-    public decimal AverageSalary { get; set; }
-
-    public PositionSalary()
-    {
-        
-    }
+    public Position Position { get; private set; }
+    public decimal AverageSalary { get; private set; }
     
-    public PositionSalary(string position, decimal averageSalary)
+    public PositionSalary(Position position, decimal averageSalary)
     {
         Position = position;
         AverageSalary = averageSalary;

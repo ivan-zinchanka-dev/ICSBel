@@ -13,6 +13,7 @@ public class EmployeeDataService
     
     public IPositionRepository PositionRepository => _serviceProvider.GetRequiredService<IPositionRepository>();
     public IEmployeeRepository EmployeeRepository => _serviceProvider.GetRequiredService<IEmployeeRepository>();
+    public IReportService ReportService => _serviceProvider.GetRequiredService<IReportService>();
     
     public EmployeeDataService()
     {
@@ -41,5 +42,6 @@ public class EmployeeDataService
         services.AddSingleton<EmployeeDatabaseContextFactory>();
         services.AddSingleton<IPositionRepository, PositionRepository>();
         services.AddSingleton<IEmployeeRepository, EmployeeRepository>();
+        services.AddSingleton<IReportService, ReportService>();
     }
 }
