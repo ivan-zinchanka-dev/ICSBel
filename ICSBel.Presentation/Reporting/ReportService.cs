@@ -11,6 +11,7 @@ internal class ReportService
     private const string PositionSalaryTemplate = "SalaryReport.rdlc";
     private const string PositionSalaryDataSource = "PositionSalaryDataSet";
     private const string ReportingFormat = "PDF";
+    private const string ReportsFolderName = "Отчеты";
     private const string ReportFileName = "Отчёт_Позиция_Средняя_ЗП.pdf";
     
     private readonly ILogger<ReportService> _logger;
@@ -31,12 +32,8 @@ internal class ReportService
         }
 
         byte[] pdfContent = GeneratePdfContent(templatePath, MapPositionSalaries(positionSalaries));
+        string createdFilePath = await CreateReportFile(pdfContent);
         
-        string createdFilePath = Path.Combine(Path.GetTempPath(), ReportFileName);
-        await File.WriteAllBytesAsync(createdFilePath, pdfContent);
-        
-        _logger.LogInformation("Generated report file: {0}", createdFilePath);
-
         OpenFile(createdFilePath);
     }
 
@@ -58,6 +55,23 @@ internal class ReportService
         report.DataSources.Add(dataSource);
         
         return report.Render(ReportingFormat);
+    }
+
+    private async Task<string> CreateReportFile(byte[] fileContent)
+    {
+        string reportsFolder = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ReportsFolderName);
+        
+        if (!Directory.Exists(reportsFolder))
+        {
+            Directory.CreateDirectory(reportsFolder);
+        }
+        
+        string createdFilePath = Path.Combine(reportsFolder, ReportFileName);
+        await File.WriteAllBytesAsync(createdFilePath, fileContent);
+        
+        _logger.LogInformation("Созданный файл отчёта: {0}", createdFilePath);
+
+        return createdFilePath;
     }
 
     private void OpenFile(string filePath)
