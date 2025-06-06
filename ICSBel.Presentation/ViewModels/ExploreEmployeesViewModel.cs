@@ -4,6 +4,7 @@ using ICSBel.Domain.API;
 using ICSBel.Domain.Models;
 using ICSBel.Presentation.Base;
 using ICSBel.Presentation.ErrorHandling;
+using ICSBel.Presentation.Extensions;
 using ICSBel.Presentation.Factories;
 using ICSBel.Presentation.Reporting;
 using ICSBel.Presentation.Views;
@@ -118,7 +119,7 @@ internal class ExploreEmployeesViewModel : BaseViewModel
     {
         try
         {
-            var newEmployeeDialog = _viewFactory.CreateView<NewEmployeeView>();
+            Form newEmployeeDialog = _viewFactory.CreateNewEmployeeView();
 
             if (newEmployeeDialog != null)
             {

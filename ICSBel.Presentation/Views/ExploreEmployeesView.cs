@@ -60,15 +60,16 @@ internal partial class ExploreEmployeesView : Form
             FlowDirection = FlowDirection.TopDown
         };
 
-        _addButton= new Button { Text = "Добавить", Width = 100 };
-        _removeButton = new Button { Text = "Удалить", Width = 100 };
-        _reportButton = new Button { Text = "Отчёт", Width = 100 };
+        _addButton = new Button { Text = "Добавить", Width = 120, Height = 28 };
+        _removeButton = new Button { Text = "Удалить", Width = 120, Height = 28 };
+        _reportButton = new Button { Text = "Отчёт", Width = 120, Height = 28 };
         
         rightPanel.Controls.Add(_addButton);
         rightPanel.Controls.Add(_removeButton);
         rightPanel.Controls.Add(_reportButton);
 
         mainLayout.Controls.Add(rightPanel, 1, 1);
+        mainLayout.Padding = new Padding(left: 5, top: 0, right: 0, bottom: 5);
         
         _employeeTable = new DataGridView
         {
@@ -92,13 +93,18 @@ internal partial class ExploreEmployeesView : Form
     
     private void SetUpBindings()
     {
-        _employeeTable.DataBindings.Add(nameof(DataGridView.DataSource), _viewModel, nameof(_viewModel.Employees), false, DataSourceUpdateMode.OnPropertyChanged);
+        _employeeTable.DataBindings
+            .Add(nameof(DataGridView.DataSource), _viewModel, nameof(_viewModel.Employees), false, DataSourceUpdateMode.OnPropertyChanged);
         
-        _positionFilter.DataBindings.Add(nameof(ComboBox.DataSource), _viewModel, nameof(_viewModel.Positions), true, DataSourceUpdateMode.OnPropertyChanged);
-        _positionFilter.DataBindings.Add(nameof(ComboBox.SelectedItem), _viewModel, nameof(_viewModel.SelectedPosition), true, DataSourceUpdateMode.OnPropertyChanged);
+        _positionFilter.DataBindings
+            .Add(nameof(ComboBox.DataSource), _viewModel, nameof(_viewModel.Positions), true, DataSourceUpdateMode.OnPropertyChanged);
+        _positionFilter.DataBindings
+            .Add(nameof(ComboBox.SelectedItem), _viewModel, nameof(_viewModel.SelectedPosition), true, DataSourceUpdateMode.OnPropertyChanged);
         
-        _addButton.DataBindings.Add(nameof(Button.Command), _viewModel, nameof(_viewModel.AddEmployeeCommand), true);
-        _reportButton.DataBindings.Add(nameof(Button.Command), _viewModel, nameof(_viewModel.ReportCommand), true);
+        _addButton.DataBindings
+            .Add(nameof(Button.Command), _viewModel, nameof(_viewModel.AddEmployeeCommand), true);
+        _reportButton.DataBindings
+            .Add(nameof(Button.Command), _viewModel, nameof(_viewModel.ReportCommand), true);
     }
 
     private void SetUpSubscriptions()

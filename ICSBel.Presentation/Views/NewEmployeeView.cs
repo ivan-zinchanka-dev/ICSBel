@@ -34,38 +34,71 @@ internal partial class NewEmployeeView : Form
     {
         Text = "Новый сотрудник";
         Width = 400;
-        Height = 300;
+        Height = 310;
         StartPosition = FormStartPosition.CenterParent;
         FormBorderStyle = FormBorderStyle.FixedDialog;
         
         _errorProvider.ContainerControl = this;
         
-        var firstNameLabel = new Label { Text = "Имя:", Left = 10, Top = 20, Width = 100 };
-        _firstNameInput = new TextBox { Left = 120, Top = 20, Width = 200 };
+        var firstNameLabel = new Label
+        {
+            Text = "Имя:", Left = 10, Top = 20, Width = 110
+        };
+        _firstNameInput = new TextBox
+        {
+            Left = 130, Top = 20, Width = 200
+        };
 
-        var lastNameLabel = new Label { Text = "Фамилия:", Left = 10, Top = 60, Width = 100 };
-        _lastNameInput = new TextBox { Left = 120, Top = 60, Width = 200 };
+        var lastNameLabel = new Label
+        {
+            Text = "Фамилия:", Left = 10, Top = 60, Width = 110
+        };
+        _lastNameInput = new TextBox
+        {
+            Left = 130, Top = 60, Width = 200
+        };
 
-        var positionLabel = new Label { Text = "Должность:", Left = 10, Top = 100, Width = 100 };
+        var positionLabel = new Label
+        {
+            Text = "Должность:", Left = 10, Top = 100, Width = 110
+        };
         _positionInput = new ComboBox
         {
-            Left = 120, Top = 100, Width = 200, DropDownStyle = ComboBoxStyle.DropDownList,
+            Left = 130, Top = 100, Width = 200, DropDownStyle = ComboBoxStyle.DropDownList,
             DisplayMember = "Name", ValueMember = "Id",
         };
         
-        var birthYearLabel = new Label { Text = "Год рождения:", Left = 10, Top = 140, Width = 100 };
-        _birthYearInput = new NumericUpDown { Left = 120, Top = 140, Width = 200, 
+        var birthYearLabel = new Label
+        {
+            Text = "Год рождения:", Left = 10, Top = 140, Width = 110
+        };
+        _birthYearInput = new NumericUpDown 
+        { 
+            Left = 130, Top = 140, Width = 200, 
             Minimum = CorrectBirthYearAttribute.MinYear, 
-            Maximum = CorrectBirthYearAttribute.MaxYear };
+            Maximum = CorrectBirthYearAttribute.MaxYear 
+        };
 
-        var salaryLabel = new Label { Text = "Зарплата:", Left = 10, Top = 180, Width = 100 };
-        _salaryInput = new NumericUpDown { Left = 120, Top = 180, Width = 200, 
+        var salaryLabel = new Label
+        {
+            Text = "Зарплата:", Left = 10, Top = 180, Width = 110
+        };
+        _salaryInput = new NumericUpDown 
+        { 
+            Left = 130, Top = 180, Width = 200, 
             Minimum = CorrectSalaryAttribute.MinSalary,
             Maximum = CorrectSalaryAttribute.MaxSalary,
-            DecimalPlaces = CorrectSalaryAttribute.DecimalPlaces };
+            DecimalPlaces = CorrectSalaryAttribute.DecimalPlaces 
+        };
 
-        _submitButton = new Button { Text = "Сохранить", Left = 120, Top = 220, Width = 90 };
-        _cancelButton = new Button { Text = "Отмена", Left = 230, Top = 220, Width = 90 };
+        _submitButton = new Button
+        {
+            Text = "Сохранить", Left = 80, Top = 220, Width = 120, Height = 28
+        };
+        _cancelButton = new Button
+        {
+            Text = "Отмена", Left = 210, Top = 220, Width = 120, Height = 28
+        };
         
         Controls.AddRange(new Control[]
         {
@@ -80,17 +113,25 @@ internal partial class NewEmployeeView : Form
     
     private void SetUpBindings()
     {
-        _firstNameInput.DataBindings.Add(nameof(TextBox.Text), _viewModel, nameof(NewEmployeeViewModel.FirstName), false, DataSourceUpdateMode.OnPropertyChanged);
-        _lastNameInput.DataBindings.Add(nameof(TextBox.Text), _viewModel, nameof(NewEmployeeViewModel.LastName), false, DataSourceUpdateMode.OnPropertyChanged);
+        _firstNameInput.DataBindings
+            .Add(nameof(TextBox.Text), _viewModel, nameof(NewEmployeeViewModel.FirstName), false, DataSourceUpdateMode.OnPropertyChanged);
+        _lastNameInput.DataBindings
+            .Add(nameof(TextBox.Text), _viewModel, nameof(NewEmployeeViewModel.LastName), false, DataSourceUpdateMode.OnPropertyChanged);
         
-        _positionInput.DataBindings.Add(nameof(ComboBox.DataSource), _viewModel, nameof(NewEmployeeViewModel.Positions), true, DataSourceUpdateMode.OnPropertyChanged);
-        _positionInput.DataBindings.Add(nameof(ComboBox.SelectedItem), _viewModel, nameof(NewEmployeeViewModel.SelectedPosition), false, DataSourceUpdateMode.OnPropertyChanged);
+        _positionInput.DataBindings
+            .Add(nameof(ComboBox.DataSource), _viewModel, nameof(NewEmployeeViewModel.Positions), true, DataSourceUpdateMode.OnPropertyChanged);
+        _positionInput.DataBindings
+            .Add(nameof(ComboBox.SelectedItem), _viewModel, nameof(NewEmployeeViewModel.SelectedPosition), false, DataSourceUpdateMode.OnPropertyChanged);
         
-        _birthYearInput.DataBindings.Add(nameof(NumericUpDown.Value), _viewModel, nameof(NewEmployeeViewModel.BirthYear), false, DataSourceUpdateMode.OnPropertyChanged);
-        _salaryInput.DataBindings.Add(nameof(NumericUpDown.Value), _viewModel, nameof(NewEmployeeViewModel.Salary), false, DataSourceUpdateMode.OnPropertyChanged);
+        _birthYearInput.DataBindings
+            .Add(nameof(NumericUpDown.Value), _viewModel, nameof(NewEmployeeViewModel.BirthYear), false, DataSourceUpdateMode.OnPropertyChanged);
+        _salaryInput.DataBindings
+            .Add(nameof(NumericUpDown.Value), _viewModel, nameof(NewEmployeeViewModel.Salary), false, DataSourceUpdateMode.OnPropertyChanged);
         
-        _submitButton.DataBindings.Add(nameof(Button.Command), _viewModel, nameof(NewEmployeeViewModel.SubmitCommand), true);
-        _cancelButton.DataBindings.Add(nameof(Button.Command), _viewModel, nameof(NewEmployeeViewModel.CancelCommand), true);
+        _submitButton.DataBindings
+            .Add(nameof(Button.Command), _viewModel, nameof(NewEmployeeViewModel.SubmitCommand), true);
+        _cancelButton.DataBindings
+            .Add(nameof(Button.Command), _viewModel, nameof(NewEmployeeViewModel.CancelCommand), true);
     }
 
     private void SetUpSubscriptions()
