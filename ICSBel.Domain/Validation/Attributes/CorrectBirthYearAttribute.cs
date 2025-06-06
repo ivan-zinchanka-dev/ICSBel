@@ -20,6 +20,6 @@ public class CorrectBirthYearAttribute : ValidationAttribute
     
     public override string FormatErrorMessage(string name)
     {
-        return $"{name} must be between {MinYear} and {MaxYear}.";
+        return "Некорректный год рождения";
     }
 }

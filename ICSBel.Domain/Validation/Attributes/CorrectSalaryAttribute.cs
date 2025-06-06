@@ -20,6 +20,6 @@ public class CorrectSalaryAttribute : ValidationAttribute
     
     public override string FormatErrorMessage(string name)
     {
-        return $"{name} must be between {MinSalary} and {MaxSalary}.";
+        return "Некорректная зарплата";
     }
 }

@@ -1,6 +1,6 @@
 ﻿using ICSBel.Domain.Models;
 
-namespace ICSBel.Domain.Services.Abstractions;
+namespace ICSBel.Domain.API.Abstractions;
 
 public interface IPositionRepository
 {

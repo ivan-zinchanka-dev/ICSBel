@@ -1,14 +1,15 @@
-﻿using ICSBel.Domain.Database;
-using ICSBel.Domain.Services.Abstractions;
-using ICSBel.Domain.Services.Implementations;
+﻿using ICSBel.Domain.API.Abstractions;
+using ICSBel.Domain.API.Implementations;
+using ICSBel.Domain.Database;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace ICSBel.Domain.Services;
+namespace ICSBel.Domain.API;
 
 public class EmployeeDataService
 {
+    private const string AppSettingsFileName = "appsettings.json";
     private readonly IServiceProvider _serviceProvider;
     
     public IPositionRepository PositionRepository => _serviceProvider.GetRequiredService<IPositionRepository>();
@@ -26,7 +27,7 @@ public class EmployeeDataService
     private void ConfigureServices(IServiceCollection services)
     {
         var configuration = new ConfigurationBuilder()
-            .AddJsonFile("appsettings.json")
+            .AddJsonFile(AppSettingsFileName)
             .Build();
         
         services.AddLogging(configure =>

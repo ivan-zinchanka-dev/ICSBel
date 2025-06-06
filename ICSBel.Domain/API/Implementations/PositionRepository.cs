@@ -1,8 +1,8 @@
-﻿using ICSBel.Domain.Database;
+﻿using ICSBel.Domain.API.Abstractions;
+using ICSBel.Domain.Database;
 using ICSBel.Domain.Models;
-using ICSBel.Domain.Services.Abstractions;
 
-namespace ICSBel.Domain.Services.Implementations;
+namespace ICSBel.Domain.API.Implementations;
 
 internal class PositionRepository : IPositionRepository
 {

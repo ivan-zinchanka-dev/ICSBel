@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel;
-using ICSBel.Domain.Models;
 using ICSBel.Domain.Validation.Attributes;
 using ICSBel.Presentation.ViewModels;
 
