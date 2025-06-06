@@ -31,7 +31,7 @@
     <ItemGroup>
       <None Remove="Report.rdlc" />
       <Content Include="Report.rdlc">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </Content>
     </ItemGroup>
 

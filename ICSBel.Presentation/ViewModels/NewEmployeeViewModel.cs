@@ -104,13 +104,22 @@ internal class NewEmployeeViewModel : BaseViewModel
     {
         _logger = logger;
         _employeeDataService = employeeDataService;
+
+        InitializeAsync();
     }
 
-    public async Task InitializeAsync()
+    public async void InitializeAsync()
     {
-        IEnumerable<Position> positions = await _employeeDataService.PositionRepository.GetPositionsAsync();
-        Positions = new BindingList<Position>(positions.ToList());
-        SelectedPosition = Positions.FirstOrDefault();
+        try
+        {
+            IEnumerable<Position> positions = await _employeeDataService.PositionRepository.GetPositionsAsync();
+            Positions = new BindingList<Position>(positions.ToList());
+            SelectedPosition = Positions.FirstOrDefault();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "При загрузке данных произошла ошибка");
+        }
     }
     
     public override bool HasErrors => _validationErrors.Any();

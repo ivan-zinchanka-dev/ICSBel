@@ -1,13 +1,11 @@
 ﻿using ICSBel.Domain.Models;
 using ICSBel.Presentation.ViewModels;
-using Microsoft.Extensions.Logging;
 
 namespace ICSBel.Presentation.Views;
 
 internal partial class ExploreEmployeesView : Form
 {
     private readonly ExploreEmployeesViewModel _viewModel;
-    private readonly ILogger<ExploreEmployeesView> _logger;
     
     private ComboBox _positionFilter;
     private DataGridView _employeeTable;
@@ -15,35 +13,16 @@ internal partial class ExploreEmployeesView : Form
     private Button _removeButton;
     private Button _reportButton;
     
-    public ExploreEmployeesView(ExploreEmployeesViewModel viewModel, ILogger<ExploreEmployeesView> logger)
+    public ExploreEmployeesView(ExploreEmployeesViewModel viewModel)
     {
         _viewModel = viewModel;
-        _logger = logger;
         DataContext = _viewModel;
+        Enabled = false;
         
         InitializeComponent();
         InitializeLayout();
         SetUpBindings();
         SetUpSubscriptions();
-    }
-
-    protected override async void OnLoad(EventArgs eventArgs)
-    {
-        try
-        {
-            base.OnLoad(eventArgs);
-            await _viewModel.InitializeAsync();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "При загрузке данных возникла ошибка");
-            
-            MessageBox.Show(
-                $"Ошибка при загрузке данных:\n{ex.Message}", 
-                "Ошибка", 
-                MessageBoxButtons.OK, 
-                MessageBoxIcon.Error);
-        }
     }
 
     private void InitializeLayout()
@@ -123,8 +102,14 @@ internal partial class ExploreEmployeesView : Form
 
     private void SetUpSubscriptions()
     {
+        _viewModel.DataLoaded += OnViewModelDataLoaded; 
         _positionFilter.SelectedIndexChanged += OnFilterAccept;
         _removeButton.Click += OnRemoveEmployeesClick;
+    }
+
+    private void OnViewModelDataLoaded()
+    {
+        Enabled = true;
     }
 
     private void OnFilterAccept(object sender, EventArgs eventArgs)
@@ -151,5 +136,11 @@ internal partial class ExploreEmployeesView : Form
             DataPropertyName = dataPropertyName,
             HeaderText = headerText
         });
+    }
+
+    protected override void OnFormClosed(FormClosedEventArgs e)
+    {
+        _viewModel.DataLoaded -= OnViewModelDataLoaded;
+        base.OnFormClosed(e);
     }
 }

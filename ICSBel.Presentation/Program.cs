@@ -1,4 +1,5 @@
 using ICSBel.Domain.API;
+using ICSBel.Presentation.ErrorHandling;
 using ICSBel.Presentation.Factories;
 using ICSBel.Presentation.Reporting;
 using ICSBel.Presentation.ViewModels;
@@ -41,5 +42,6 @@ public static class Program
         services.AddTransient<ExploreEmployeesView>();
         services.AddTransient<NewEmployeeViewModel>();
         services.AddTransient<NewEmployeeView>();
+        services.AddSingleton<ErrorReporter>();
     }
 }

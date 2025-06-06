@@ -3,6 +3,7 @@ using System.Windows.Input;
 using ICSBel.Domain.API;
 using ICSBel.Domain.Models;
 using ICSBel.Presentation.Base;
+using ICSBel.Presentation.ErrorHandling;
 using ICSBel.Presentation.Factories;
 using ICSBel.Presentation.Reporting;
 using ICSBel.Presentation.Views;
@@ -16,6 +17,7 @@ internal class ExploreEmployeesViewModel : BaseViewModel
     private readonly EmployeeDataService _employeeDataService;
     private readonly ViewFactory _viewFactory;
     private readonly ReportService _reportService;
+    private readonly ErrorReporter _errorReporter;
     
     private BindingList<Employee> _employees;
     private BindingList<Position> _positions;
@@ -55,34 +57,49 @@ internal class ExploreEmployeesViewModel : BaseViewModel
     public ICommand AddEmployeeCommand { get; }
     public ICommand RemoveEmployeesCommand { get; }
     public ICommand ReportCommand { get; }
-
+    public event Action DataLoaded;
+    
     public ExploreEmployeesViewModel(
         ILogger<ExploreEmployeesViewModel> logger,
         EmployeeDataService employeeDataService, 
         ViewFactory viewFactory, 
-        ReportService reportService)
+        ReportService reportService, ErrorReporter errorReporter)
     {
         _logger = logger;
         _employeeDataService = employeeDataService;
         _viewFactory = viewFactory;
         _reportService = reportService;
-        
+        _errorReporter = errorReporter;
+
         AddEmployeeCommand = new RelayCommand(AddNewEmployeeAsync);
         RemoveEmployeesCommand = new RelayCommand(RemoveEmployeesAsync);
         ReportCommand = new RelayCommand(Report);
+
+        InitializeAsync();
     }
 
-    public async Task InitializeAsync()
+    private async void InitializeAsync()
     {
-        IEnumerable<Position> sourcePositions = await _employeeDataService.PositionRepository.GetPositionsAsync();
-        Task<IEnumerable<Employee>> getEmployeesTask = GetEmployeesAsync();
+        try
+        {
+            IEnumerable<Position> sourcePositions = await _employeeDataService.PositionRepository.GetPositionsAsync();
+            Task<IEnumerable<Employee>> getEmployeesTask = GetEmployeesAsync();
         
-        List<Position> positions = sourcePositions.ToList();
-        positions.Insert(0, Position.All);
-        Positions = new BindingList<Position>(positions);
+            List<Position> positions = sourcePositions.ToList();
+            positions.Insert(0, Position.All);
+            Positions = new BindingList<Position>(positions);
         
-        IEnumerable<Employee> employees = await getEmployeesTask;
-        Employees =  new BindingList<Employee>(employees.ToList());
+            IEnumerable<Employee> employees = await getEmployeesTask;
+            Employees =  new BindingList<Employee>(employees.ToList());
+            
+            DataLoaded?.Invoke();
+        }
+        catch (Exception ex)
+        {
+            string errorMessage = "При загрузке данных возникла ошибка";
+            _logger.LogError(ex, errorMessage);
+            _errorReporter.Report(ex, errorMessage);
+        }
     }
 
     private async Task<IEnumerable<Employee>> GetEmployeesAsync()
@@ -117,13 +134,9 @@ internal class ExploreEmployeesViewModel : BaseViewModel
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "При добавлении сотрудника возникла ошибка");
-            
-            MessageBox.Show(
-                $"Ошибка при добавлении сотрудника:\n{ex.Message}", 
-                "Ошибка", 
-                MessageBoxButtons.OK, 
-                MessageBoxIcon.Error);
+            string errorMessage = "При добавлении сотрудника возникла ошибка";
+            _logger.LogError(ex, errorMessage);
+            _errorReporter.Report(ex, errorMessage);
         }
     }
     
@@ -136,13 +149,9 @@ internal class ExploreEmployeesViewModel : BaseViewModel
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "При удалении сотрудников возникла ошибка");
-            
-            MessageBox.Show(
-                $"Ошибка при удалении сотрудников:\n{ex.Message}", 
-                "Ошибка", 
-                MessageBoxButtons.OK, 
-                MessageBoxIcon.Error);
+            string errorMessage = "При удалении сотрудников возникла ошибка";
+            _logger.LogError(ex, errorMessage);
+            _errorReporter.Report(ex, errorMessage);
         }
     }
     
@@ -180,13 +189,9 @@ internal class ExploreEmployeesViewModel : BaseViewModel
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "При обновлении списка сотрудников возникла ошибка");
-            
-            MessageBox.Show(
-                $"Ошибка при создании отчёта:\n{ex.Message}", 
-                "Ошибка", 
-                MessageBoxButtons.OK, 
-                MessageBoxIcon.Error);
+            string errorMessage = "При обновлении списка сотрудников возникла ошибка";
+            _logger.LogError(ex, errorMessage);
+            _errorReporter.Report(ex, errorMessage);
         }
     }
     
@@ -200,13 +205,9 @@ internal class ExploreEmployeesViewModel : BaseViewModel
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "При создании отчёта возникла ошибка");
-            
-            MessageBox.Show(
-                $"Ошибка при создании отчёта:\n{ex.Message}", 
-                "Ошибка", 
-                MessageBoxButtons.OK, 
-                MessageBoxIcon.Error);
+            string errorMessage = "При создании отчёта возникла ошибка";
+            _logger.LogError(ex, errorMessage);
+            _errorReporter.Report(ex, errorMessage);
         }
     }
 }

@@ -30,19 +30,6 @@ internal partial class NewEmployeeView : Form
         SetUpSubscriptions();
     }
     
-    protected override async void OnLoad(EventArgs eventArgs)
-    {
-        try
-        {
-            base.OnLoad(eventArgs);
-            await _viewModel.InitializeAsync();
-        }
-        catch (Exception ex)
-        {
-            // TODO _logger.LogError(ex, "При загрузке данных возникла ошибка");
-        }
-    }
-    
     private void InitializeLayout()
     {
         Text = "Новый сотрудник";
@@ -111,7 +98,7 @@ internal partial class NewEmployeeView : Form
         _viewModel.ErrorsChanged += OnValidationErrorsChanged;
         _viewModel.OnCommandComplete += OnCommandComplete;
     }
-
+    
     private void OnCommandComplete(bool commandResult)
     {
         DialogResult = DialogResult.OK;
@@ -138,5 +125,17 @@ internal partial class NewEmployeeView : Form
             nameof(_viewModel.Salary) => _salaryInput,
             _ => null
         };
+    }
+
+    private void CleanUpSubscriptions()
+    {
+        _viewModel.ErrorsChanged -= OnValidationErrorsChanged;
+        _viewModel.OnCommandComplete -= OnCommandComplete;
+    }
+    
+    protected override void OnFormClosed(FormClosedEventArgs e)
+    {
+        CleanUpSubscriptions();
+        base.OnFormClosed(e);
     }
 }
