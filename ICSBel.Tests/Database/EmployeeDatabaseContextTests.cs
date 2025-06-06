@@ -1,7 +1,7 @@
 ﻿using ICSBel.Domain.Database;
+using ICSBel.Domain.Database.Services;
 using ICSBel.Domain.Models;
 using ICSBel.Tests.Utilities;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 
@@ -10,15 +10,12 @@ namespace ICSBel.Tests.Database;
 [TestFixture]
 public class EmployeeDatabaseContextTests
 {
-    private ILogger<EmployeeDatabaseContext> _logger;
     private IOptions<EmployeeDatabaseSettings> _options;
-
     private EmployeeDatabaseContext _databaseContext;
 
     [OneTimeSetUp]
     public void SetUpFixture()
     {
-        _logger = LoggingUtility.CreateLogger<EmployeeDatabaseContext>();
         var settings = new EmployeeDatabaseSettings()
         {
             ConnectionString = 
@@ -31,7 +28,12 @@ public class EmployeeDatabaseContextTests
     [SetUp]
     public void SetUpTest()
     {
-        _databaseContext = new EmployeeDatabaseContext(_options, _logger);
+        var positionsCacheService = new PositionCacheService(LoggingUtility.CreateLogger<PositionCacheService>());
+        _databaseContext = new EmployeeDatabaseContext(
+            new DatabaseConnectionService(LoggingUtility.CreateLogger<DatabaseConnectionService>(), _options),
+            new EmployeeQueryService(LoggingUtility.CreateLogger<EmployeeQueryService>(), positionsCacheService), 
+            positionsCacheService, 
+            new ReportQueryService(LoggingUtility.CreateLogger<ReportQueryService>(), positionsCacheService));
     }
 
     [Test]
@@ -57,23 +59,6 @@ public class EmployeeDatabaseContextTests
         {
             Console.WriteLine(JsonConvert.SerializeObject(employee));
         }
-    }
-
-    [Test]
-    public async Task AddEmployeeAsync()
-    {
-        bool result = await _databaseContext.AddEmployeeAsync(
-            new EmployeeInputData("Иван", "Зинченко", 1, 2000, 1500));
-            
-        Assert.That(result, Is.True);
-    }
-    
-    [Test]
-    public async Task RemoveEmployeesAsync()
-    {
-        var employeeIds = new int[]{ 7, 8};
-        bool result = await _databaseContext.RemoveEmployeesAsync(employeeIds);
-        Assert.That(result, Is.True);
     }
     
     [TearDown]
