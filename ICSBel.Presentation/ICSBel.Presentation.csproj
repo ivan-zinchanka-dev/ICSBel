@@ -35,4 +35,9 @@
       </Content>
     </ItemGroup>
 
+    <PropertyGroup>
+        <EnableWindowsFormsHighDpiAutoResizing>true</EnableWindowsFormsHighDpiAutoResizing>
+        <EnableDpiAwareness>true</EnableDpiAwareness>
+    </PropertyGroup>
+
 </Project>

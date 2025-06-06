@@ -6,7 +6,7 @@ using Microsoft.Reporting.NETCore;
 
 namespace ICSBel.Presentation.Reporting;
 
-public class ReportService
+internal class ReportService
 {
     private const string PositionSalaryTemplate = "SalaryReport.rdlc";
     private const string PositionSalaryDataSource = "PositionSalaryDataSet";

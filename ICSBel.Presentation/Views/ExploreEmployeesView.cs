@@ -30,7 +30,8 @@ internal partial class ExploreEmployeesView : Form
         Text = "Сотрудники";
         Width = 800;
         Height = 500;
-
+        StartPosition = FormStartPosition.CenterScreen;
+        
         var mainLayout = new TableLayoutPanel
         {
             Dock = DockStyle.Fill,

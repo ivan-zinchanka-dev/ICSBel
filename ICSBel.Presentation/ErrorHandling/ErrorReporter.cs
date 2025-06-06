@@ -1,6 +1,6 @@
 ﻿namespace ICSBel.Presentation.ErrorHandling;
 
-public class ErrorReporter
+internal class ErrorReporter
 {
     public void Report(string errorText, string caption = "Ошибка")
     {

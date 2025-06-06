@@ -33,10 +33,10 @@ internal partial class NewEmployeeView : Form
     private void InitializeLayout()
     {
         Text = "Новый сотрудник";
-        StartPosition = FormStartPosition.CenterParent;
-        FormBorderStyle = FormBorderStyle.FixedDialog;
         Width = 400;
         Height = 300;
+        StartPosition = FormStartPosition.CenterParent;
+        FormBorderStyle = FormBorderStyle.FixedDialog;
         
         _errorProvider.ContainerControl = this;
         

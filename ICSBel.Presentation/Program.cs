@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using ICSBel.Domain.API;
 using ICSBel.Presentation.ErrorHandling;
 using ICSBel.Presentation.Factories;
@@ -11,11 +12,16 @@ namespace ICSBel.Presentation;
 
 public static class Program
 {
+    [DllImport("user32.dll")]
+    private static extern bool SetProcessDpiAwarenessContext(int dpiFlag);
+
+    private const int DpiAwarenessContextPerMonitorAwareV2 = -4;
+    
     [STAThread]
     public static void Main()
     {
+        SetProcessDpiAwarenessContext(DpiAwarenessContextPerMonitorAwareV2);
         Application.EnableVisualStyles();
-        Application.SetCompatibleTextRenderingDefault(false);
         
         var services = new ServiceCollection();
         services.ConfigureServices();

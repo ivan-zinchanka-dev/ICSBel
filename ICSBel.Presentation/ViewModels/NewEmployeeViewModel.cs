@@ -159,7 +159,7 @@ internal class NewEmployeeViewModel : BaseViewModel
         OnErrorsChanged(propertyName);
     }
     
-    private void ValidateAllProperties()
+    private void ValidateAllProperties(bool fireErrorsChanged = true)
     {
         var context = new ValidationContext(this);
         var results = new List<ValidationResult>();
@@ -172,14 +172,18 @@ internal class NewEmployeeViewModel : BaseViewModel
             foreach (string memberName in result.MemberNames)
             {
                 _validationErrors.TryAddPropertyError(memberName, result.ErrorMessage);
-                OnErrorsChanged(memberName);
+
+                if (fireErrorsChanged)
+                {
+                    OnErrorsChanged(memberName);
+                }
             }
         }
     }
     
     private bool CanSubmit(object param)
     {
-        ValidateAllProperties();
+        ValidateAllProperties(false);
         return !HasErrors;
     }
     

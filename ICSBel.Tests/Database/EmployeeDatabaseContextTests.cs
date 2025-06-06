@@ -8,7 +8,7 @@ using Newtonsoft.Json;
 namespace ICSBel.Tests.Database;
 
 [TestFixture]
-public class EmployeeDatabaseContextTests
+internal class EmployeeDatabaseContextTests
 {
     private IOptions<EmployeeDatabaseSettings> _options;
     private EmployeeDatabaseContext _databaseContext;

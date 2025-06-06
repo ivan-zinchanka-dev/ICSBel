@@ -2,7 +2,7 @@
 
 namespace ICSBel.Tests.Utilities;
 
-public static class LoggingUtility
+internal static class LoggingUtility
 {
     public static ILogger<T> CreateLogger<T>()
     {
