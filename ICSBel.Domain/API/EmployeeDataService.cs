@@ -1,6 +1,7 @@
 ﻿using ICSBel.Domain.API.Abstractions;
 using ICSBel.Domain.API.Implementations;
 using ICSBel.Domain.Database;
+using ICSBel.Domain.Database.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -38,9 +39,15 @@ public class EmployeeDataService
 
         services.Configure<EmployeeDatabaseSettings>(
             configuration.GetSection(nameof(EmployeeDatabaseSettings)));
+
+        services.AddTransient<DatabaseConnectionService>();
+        services.AddTransient<PositionCacheService>();
+        services.AddTransient<EmployeeQueryService>();
+        services.AddTransient<ReportQueryService>();
         
         services.AddTransient<EmployeeDatabaseContext>();
         services.AddSingleton<EmployeeDatabaseContextFactory>();
+        
         services.AddSingleton<IPositionRepository, PositionRepository>();
         services.AddSingleton<IEmployeeRepository, EmployeeRepository>();
         services.AddSingleton<IReportService, ReportService>();
