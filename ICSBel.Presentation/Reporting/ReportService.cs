@@ -8,8 +8,8 @@ namespace ICSBel.Presentation.Reporting;
 
 public class ReportService
 {
-    private const string PositionSalaryTemplate = "Report.rdlc";
-    private const string PositionSalaryDataSource = "MyDataSet";
+    private const string PositionSalaryTemplate = "SalaryReport.rdlc";
+    private const string PositionSalaryDataSource = "PositionSalaryDataSet";
     private const string ReportingFormat = "PDF";
     private const string ReportFileName = "Отчёт_Позиция_Средняя_ЗП.pdf";
     

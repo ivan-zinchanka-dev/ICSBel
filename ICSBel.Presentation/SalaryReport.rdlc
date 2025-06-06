@@ -57,7 +57,7 @@
                           <Paragraph>
                             <TextRuns>
                               <TextRun>
-                                <Value>Средняя ЗП</Value>
+                                <Value>Средняя зарплата</Value>
                                 <Style>
                                   <FontWeight>Bold</FontWeight>
                                 </Style>
@@ -160,7 +160,7 @@
               <TablixMember />
             </TablixMembers>
           </TablixColumnHierarchy>
-          <DataSetName>MyDataSet</DataSetName>
+          <DataSetName>PositionSalaryDataSet</DataSetName>
           <Top>0.25in</Top>
           <Left>0.25in</Left>
           <Height>0.5in</Height>
@@ -184,7 +184,7 @@
       <BottomMargin>1in</BottomMargin>
     </Page>
     <DataSets>
-      <DataSet Name="MyDataSet">
+      <DataSet Name="PositionSalaryDataSet">
         <Fields>
           <Field Name="Position">
             <DataField>Position</DataField>
