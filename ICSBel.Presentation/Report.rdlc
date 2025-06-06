@@ -148,9 +148,11 @@
           </TablixBody>
           <TablixRowHierarchy>
             <TablixMembers>
-              <TablixMember />
-              <TablixMember />
-            </TablixMembers>
+                <TablixMember />
+                <TablixMember>
+                  <Group Name="DetailGroup" />
+                </TablixMember>
+              </TablixMembers>
           </TablixRowHierarchy>
           <TablixColumnHierarchy>
             <TablixMembers>

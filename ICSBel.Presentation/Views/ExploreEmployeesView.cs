@@ -10,6 +10,9 @@ internal partial class ExploreEmployeesView : Form
 
     private ComboBox _positionFilter;
     private DataGridView _employeeTable;
+    private Button _addButton;
+    private Button _removeButton;
+    private Button _reportButton;
     
     public ExploreEmployeesView(ExploreEmployeesViewModel viewModel)
     {
@@ -63,16 +66,13 @@ internal partial class ExploreEmployeesView : Form
             FlowDirection = FlowDirection.TopDown
         };
 
-        var addButton = new Button { Text = "Добавить", Width = 100 };
-        var removeButton = new Button { Text = "Удалить", Width = 100 };
-        var reportButton = new Button { Text = "Отчёт", Width = 100 };
+        _addButton= new Button { Text = "Добавить", Width = 100 };
+        _removeButton = new Button { Text = "Удалить", Width = 100 };
+        _reportButton = new Button { Text = "Отчёт", Width = 100 };
         
-        addButton.DataBindings.Add(new Binding("Command", _viewModel, nameof(_viewModel.AddEmployeeCommand), true));
-        removeButton.Click += OnRemoveEmployeesClick;
-
-        rightPanel.Controls.Add(addButton);
-        rightPanel.Controls.Add(removeButton);
-        rightPanel.Controls.Add(reportButton);
+        rightPanel.Controls.Add(_addButton);
+        rightPanel.Controls.Add(_removeButton);
+        rightPanel.Controls.Add(_reportButton);
 
         mainLayout.Controls.Add(rightPanel, 1, 1);
         
@@ -109,6 +109,10 @@ internal partial class ExploreEmployeesView : Form
         
         _positionFilter.DataBindings.Add(nameof(ComboBox.DataSource), _viewModel, nameof(_viewModel.Positions), true, DataSourceUpdateMode.OnPropertyChanged);
         _positionFilter.DataBindings.Add(nameof(ComboBox.SelectedItem), _viewModel, nameof(_viewModel.SelectedPosition), true, DataSourceUpdateMode.OnPropertyChanged);
+        
+        _addButton.DataBindings.Add(nameof(Button.Command), _viewModel, nameof(_viewModel.AddEmployeeCommand), true);
+        _removeButton.Click += OnRemoveEmployeesClick;
+        _reportButton.DataBindings.Add(nameof(Button.Command), _viewModel, nameof(_viewModel.ReportCommand), true);
     }
 
     private void OnRemoveEmployeesClick(object sender, EventArgs eventArgs)

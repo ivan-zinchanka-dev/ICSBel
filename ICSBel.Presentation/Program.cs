@@ -1,5 +1,6 @@
 using ICSBel.Domain.Services;
 using ICSBel.Presentation.Factories;
+using ICSBel.Presentation.Reporting;
 using ICSBel.Presentation.ViewModels;
 using ICSBel.Presentation.Views;
 using Microsoft.Extensions.DependencyInjection;
@@ -35,6 +36,7 @@ public static class Program
         
         services.AddSingleton<EmployeeDataService>();
         services.AddSingleton<ViewFactory>();
+        services.AddSingleton<ReportService>();
         services.AddTransient<ExploreEmployeesViewModel>();
         services.AddTransient<ExploreEmployeesView>();
         services.AddTransient<NewEmployeeViewModel>();

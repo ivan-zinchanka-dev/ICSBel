@@ -28,4 +28,11 @@
       <PackageReference Include="ReportViewerCore.NETCore" Version="15.1.26" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Remove="Report.rdlc" />
+      <Content Include="Report.rdlc">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+    </ItemGroup>
+
 </Project>

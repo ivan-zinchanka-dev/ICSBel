@@ -1,10 +1,12 @@
 ﻿using System.ComponentModel;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using ICSBel.Domain.Models;
 using ICSBel.Domain.Services;
 using ICSBel.Presentation.Base;
 using ICSBel.Presentation.Factories;
+using ICSBel.Presentation.Reporting;
 using ICSBel.Presentation.Views;
 using Microsoft.Extensions.Logging;
 
@@ -15,6 +17,7 @@ internal class ExploreEmployeesViewModel : INotifyPropertyChanged
     private readonly ILogger<ExploreEmployeesViewModel> _logger;
     private readonly EmployeeDataService _employeeDataService;
     private readonly ViewFactory _viewFactory;
+    private readonly ReportService _reportService;
     
     private BindingList<Employee> _employees;
     private BindingList<Position> _positions;
@@ -53,20 +56,25 @@ internal class ExploreEmployeesViewModel : INotifyPropertyChanged
     
     public ICommand AddEmployeeCommand { get; }
     public ICommand RemoveEmployeesCommand { get; }
+    
+    public ICommand ReportCommand { get; }
 
     public event PropertyChangedEventHandler PropertyChanged;
 
     public ExploreEmployeesViewModel(
         ILogger<ExploreEmployeesViewModel> logger,
         EmployeeDataService employeeDataService, 
-        ViewFactory viewFactory)
+        ViewFactory viewFactory, 
+        ReportService reportService)
     {
+        _logger = logger;
         _employeeDataService = employeeDataService;
         _viewFactory = viewFactory;
-        _logger = logger;
+        _reportService = reportService;
         
         AddEmployeeCommand = new RelayCommand(AddNewEmployeeAsync);
         RemoveEmployeesCommand = new RelayCommand(RemoveEmployeesAsync);
+        ReportCommand = new RelayCommand(Report);
     }
 
     public async Task InitializeAsync()
@@ -157,6 +165,10 @@ internal class ExploreEmployeesViewModel : INotifyPropertyChanged
         Employees = new BindingList<Employee>(employees.ToList());
     }
 
+    private void Report(object param)
+    {
+        _reportService.GenerateAndOpenSalaryReport();
+    }
     
     protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
     {
