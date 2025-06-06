@@ -33,13 +33,14 @@ internal class DatabaseConnectionService
                 await _connection.OpenAsync();
                 _logger.LogInformation("Соединение с БД произведено успешно");
             }
+            
+            return _connection;
         }
         catch (SqlException ex)
         {
             _logger.LogError(ex.Message);
+            throw;
         }
-
-        return _connection;
     }
     
     public async ValueTask CloseConnectionAsync()

@@ -48,7 +48,7 @@ internal class ReportQueryService
         catch (SqlException ex)
         {
             _logger.LogError(ex.Message);
-            return new List<PositionSalary>();
+            throw;
         }
     }
 }

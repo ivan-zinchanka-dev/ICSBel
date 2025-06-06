@@ -18,14 +18,13 @@ internal class ViewFactory
     {
         if (_serviceProvider.GetService<TView>() is Form view)
         {
-            _logger.LogInformation("View of type'{0}' successfully created", typeof(TView).ToString());
+            _logger.LogInformation("Представление типа '{0}' создано успешно", typeof(TView).ToString());
             return view;
         }
         else
         {
-            _logger.LogError("View of type '{0}' not found", typeof(TView).ToString());
+            _logger.LogError("Представление типа '{0}' не найдено", typeof(TView).ToString());
             return null;
         }
     }
-
 }

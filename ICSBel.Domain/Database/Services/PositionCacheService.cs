@@ -55,11 +55,11 @@ internal class PositionCacheService
             }
 
             await reader.CloseAsync();
-      
         }
         catch (SqlException ex)
         {
             _logger.LogError(ex.Message);
+            throw;
         }
     }
 }

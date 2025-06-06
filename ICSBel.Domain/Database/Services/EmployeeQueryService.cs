@@ -63,7 +63,7 @@ internal class EmployeeQueryService
         catch (SqlException ex)
         {
             _logger.LogError(ex.Message);
-            return new List<Employee>();
+            throw;
         }
     }
     
@@ -84,7 +84,7 @@ internal class EmployeeQueryService
         catch (SqlException ex)
         {
             _logger.LogError(ex.Message);
-            return false;
+            throw;
         }
     }
     
@@ -113,7 +113,7 @@ internal class EmployeeQueryService
         catch (SqlException ex)
         {
             _logger.LogError(ex.Message);
-            return false;
+            throw;
         }
     }
 }

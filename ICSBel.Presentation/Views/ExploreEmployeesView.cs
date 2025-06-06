@@ -1,33 +1,49 @@
-﻿using System.ComponentModel;
-using System.Diagnostics;
+﻿using ICSBel.Domain.Models;
 using ICSBel.Presentation.ViewModels;
+using Microsoft.Extensions.Logging;
 
 namespace ICSBel.Presentation.Views;
 
 internal partial class ExploreEmployeesView : Form
 {
     private readonly ExploreEmployeesViewModel _viewModel;
-
+    private readonly ILogger<ExploreEmployeesView> _logger;
+    
     private ComboBox _positionFilter;
     private DataGridView _employeeTable;
     private Button _addButton;
     private Button _removeButton;
     private Button _reportButton;
     
-    public ExploreEmployeesView(ExploreEmployeesViewModel viewModel)
+    public ExploreEmployeesView(ExploreEmployeesViewModel viewModel, ILogger<ExploreEmployeesView> logger)
     {
         _viewModel = viewModel;
+        _logger = logger;
         DataContext = _viewModel;
         
         InitializeComponent();
         InitializeLayout();
-        SetupBindings();
+        SetUpBindings();
+        SetUpSubscriptions();
     }
 
     protected override async void OnLoad(EventArgs eventArgs)
     {
-        base.OnLoad(eventArgs);
-        await _viewModel.InitializeAsync();
+        try
+        {
+            base.OnLoad(eventArgs);
+            await _viewModel.InitializeAsync();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "При загрузке данных возникла ошибка");
+            
+            MessageBox.Show(
+                $"Ошибка при загрузке данных:\n{ex.Message}", 
+                "Ошибка", 
+                MessageBoxButtons.OK, 
+                MessageBoxIcon.Error);
+        }
     }
 
     private void InitializeLayout()
@@ -56,8 +72,6 @@ internal partial class ExploreEmployeesView : Form
             ValueMember = "Id",
         };
         
-        _positionFilter.SelectedIndexChanged += OnFilterAccept;
-
         mainLayout.Controls.Add(_positionFilter, 0, 0);
         
         var rightPanel = new FlowLayoutPanel
@@ -86,24 +100,17 @@ internal partial class ExploreEmployeesView : Form
         
         _employeeTable.AutoGenerateColumns = false;
 
-        AddEmployeeTableColumn("FirstName", "Имя");
-        AddEmployeeTableColumn("LastName", "Фамилия");
-        AddEmployeeTableColumn("Position", "Должность");
-        AddEmployeeTableColumn("BirthYear", "Год рождения");
-        AddEmployeeTableColumn("Salary", "Зарплата");
+        AddEmployeeTableColumn(nameof(Employee.FirstName), "Имя");
+        AddEmployeeTableColumn(nameof(Employee.LastName), "Фамилия");
+        AddEmployeeTableColumn(nameof(Employee.Position), "Должность");
+        AddEmployeeTableColumn(nameof(Employee.BirthYear), "Год рождения");
+        AddEmployeeTableColumn(nameof(Employee.Salary), "Зарплата");
         
         mainLayout.Controls.Add(_employeeTable, 0, 1);
         mainLayout.SetColumnSpan(_employeeTable, 1);
-
-        _viewModel.PropertyChanged += OnViewModelPropertyChanged;
     }
-
-    private void OnFilterAccept(object sender, EventArgs eventArgs)
-    {
-        _employeeTable.Focus();
-    }
-
-    private void SetupBindings()
+    
+    private void SetUpBindings()
     {
         _employeeTable.DataBindings.Add(nameof(DataGridView.DataSource), _viewModel, nameof(_viewModel.Employees), false, DataSourceUpdateMode.OnPropertyChanged);
         
@@ -111,10 +118,20 @@ internal partial class ExploreEmployeesView : Form
         _positionFilter.DataBindings.Add(nameof(ComboBox.SelectedItem), _viewModel, nameof(_viewModel.SelectedPosition), true, DataSourceUpdateMode.OnPropertyChanged);
         
         _addButton.DataBindings.Add(nameof(Button.Command), _viewModel, nameof(_viewModel.AddEmployeeCommand), true);
-        _removeButton.Click += OnRemoveEmployeesClick;
         _reportButton.DataBindings.Add(nameof(Button.Command), _viewModel, nameof(_viewModel.ReportCommand), true);
     }
 
+    private void SetUpSubscriptions()
+    {
+        _positionFilter.SelectedIndexChanged += OnFilterAccept;
+        _removeButton.Click += OnRemoveEmployeesClick;
+    }
+
+    private void OnFilterAccept(object sender, EventArgs eventArgs)
+    {
+        _employeeTable.Focus();
+    }
+    
     private void OnRemoveEmployeesClick(object sender, EventArgs eventArgs)
     {
         var deletableIndices = new int[_employeeTable.SelectedRows.Count];
@@ -134,13 +151,5 @@ internal partial class ExploreEmployeesView : Form
             DataPropertyName = dataPropertyName,
             HeaderText = headerText
         });
-    }
-
-    private void OnViewModelPropertyChanged(object sender, PropertyChangedEventArgs eventArgs)
-    {
-        /*if (eventArgs.PropertyName == nameof(_viewModel.SelectedPosition))
-        {
-            await _viewModel.UpdateEmployeesAsync();
-        }*/
     }
 }

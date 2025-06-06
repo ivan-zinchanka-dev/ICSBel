@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel;
-using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using ICSBel.Domain.API;
 using ICSBel.Domain.Models;
@@ -11,7 +10,7 @@ using Microsoft.Extensions.Logging;
 
 namespace ICSBel.Presentation.ViewModels;
 
-internal class ExploreEmployeesViewModel : INotifyPropertyChanged
+internal class ExploreEmployeesViewModel : BaseViewModel
 {
     private readonly ILogger<ExploreEmployeesViewModel> _logger;
     private readonly EmployeeDataService _employeeDataService;
@@ -49,16 +48,13 @@ internal class ExploreEmployeesViewModel : INotifyPropertyChanged
         {
             _selectedPosition = value;
             OnPropertyChanged();
-            UpdateEmployeesAsync();
+            OnSelectedPositionChangedAsync();
         }
     }
     
     public ICommand AddEmployeeCommand { get; }
     public ICommand RemoveEmployeesCommand { get; }
-    
     public ICommand ReportCommand { get; }
-
-    public event PropertyChangedEventHandler PropertyChanged;
 
     public ExploreEmployeesViewModel(
         ILogger<ExploreEmployeesViewModel> logger,
@@ -121,7 +117,13 @@ internal class ExploreEmployeesViewModel : INotifyPropertyChanged
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "An unhandled exception occurred while adding new employee");
+            _logger.LogError(ex, "При добавлении сотрудника возникла ошибка");
+            
+            MessageBox.Show(
+                $"Ошибка при добавлении сотрудника:\n{ex.Message}", 
+                "Ошибка", 
+                MessageBoxButtons.OK, 
+                MessageBoxIcon.Error);
         }
     }
     
@@ -134,7 +136,13 @@ internal class ExploreEmployeesViewModel : INotifyPropertyChanged
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "An unhandled exception occurred while removing employees");
+            _logger.LogError(ex, "При удалении сотрудников возникла ошибка");
+            
+            MessageBox.Show(
+                $"Ошибка при удалении сотрудников:\n{ex.Message}", 
+                "Ошибка", 
+                MessageBoxButtons.OK, 
+                MessageBoxIcon.Error);
         }
     }
     
@@ -164,6 +172,24 @@ internal class ExploreEmployeesViewModel : INotifyPropertyChanged
         Employees = new BindingList<Employee>(employees.ToList());
     }
 
+    private async void OnSelectedPositionChangedAsync()
+    {
+        try
+        {
+            await UpdateEmployeesAsync();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "При обновлении списка сотрудников возникла ошибка");
+            
+            MessageBox.Show(
+                $"Ошибка при создании отчёта:\n{ex.Message}", 
+                "Ошибка", 
+                MessageBoxButtons.OK, 
+                MessageBoxIcon.Error);
+        }
+    }
+    
     private async void Report(object param)
     {
         try
@@ -174,12 +200,13 @@ internal class ExploreEmployeesViewModel : INotifyPropertyChanged
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "An unhandled exception occurred while reporting");
+            _logger.LogError(ex, "При создании отчёта возникла ошибка");
+            
+            MessageBox.Show(
+                $"Ошибка при создании отчёта:\n{ex.Message}", 
+                "Ошибка", 
+                MessageBoxButtons.OK, 
+                MessageBoxIcon.Error);
         }
-    }
-    
-    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

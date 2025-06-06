@@ -8,11 +8,13 @@ using ICSBel.Domain.Models;
 using ICSBel.Domain.Validation;
 using ICSBel.Domain.Validation.Attributes;
 using ICSBel.Presentation.Base;
+using Microsoft.Extensions.Logging;
 
 namespace ICSBel.Presentation.ViewModels;
 
 internal class NewEmployeeViewModel : BaseViewModel
 {
+    private readonly ILogger<NewEmployeeViewModel> _logger;
     private readonly EmployeeDataService _employeeDataService;
 
     private string _firstName = string.Empty;
@@ -23,14 +25,8 @@ internal class NewEmployeeViewModel : BaseViewModel
     private decimal _salary = 1_000;
     
     private readonly ValidationErrorCollection _validationErrors = new ValidationErrorCollection();
-    
-    private static class Messages
-    {
-        public const string FirstNameErrorMessage = "The first name must not be empty";
-        public const string LastNameErrorMessage = "The last name must not be empty";
-    }
-    
-    [Required(AllowEmptyStrings = false, ErrorMessage = Messages.FirstNameErrorMessage)]
+        
+    [Required(AllowEmptyStrings = false, ErrorMessage = "Требуется ввести имя")]
     public string FirstName
     {
         get => _firstName;
@@ -42,7 +38,7 @@ internal class NewEmployeeViewModel : BaseViewModel
         }
     }
 
-    [Required(AllowEmptyStrings = false, ErrorMessage = Messages.LastNameErrorMessage)]
+    [Required(AllowEmptyStrings = false, ErrorMessage = "Требуется ввести фамилию")]
     public string LastName
     {
         get => _lastName;
@@ -102,9 +98,11 @@ internal class NewEmployeeViewModel : BaseViewModel
     
     public ICommand SubmitCommand => new RelayCommand(SubmitAsync, CanSubmit);
     public ICommand CancelCommand => new RelayCommand(Cancel);
+    public event Action<bool> OnCommandComplete;
     
-    public NewEmployeeViewModel(EmployeeDataService employeeDataService)
+    public NewEmployeeViewModel(ILogger<NewEmployeeViewModel> logger, EmployeeDataService employeeDataService)
     {
+        _logger = logger;
         _employeeDataService = employeeDataService;
     }
 
@@ -116,13 +114,7 @@ internal class NewEmployeeViewModel : BaseViewModel
     }
     
     public override bool HasErrors => _validationErrors.Any();
-
-    private bool CanSubmit(object param)
-    {
-        ValidateAllProperties();
-        return !HasErrors;
-    }
-
+    
     public override IEnumerable GetErrors(string propertyName)
     {
         if (!string.IsNullOrEmpty(propertyName) && !string.IsNullOrWhiteSpace(propertyName))
@@ -158,7 +150,7 @@ internal class NewEmployeeViewModel : BaseViewModel
         OnErrorsChanged(propertyName);
     }
     
-    public void ValidateAllProperties()
+    private void ValidateAllProperties()
     {
         var context = new ValidationContext(this);
         var results = new List<ValidationResult>();
@@ -176,16 +168,31 @@ internal class NewEmployeeViewModel : BaseViewModel
         }
     }
     
+    private bool CanSubmit(object param)
+    {
+        ValidateAllProperties();
+        return !HasErrors;
+    }
+    
     private async void SubmitAsync(object param)
     {
-        Console.WriteLine("SUBMIT");
-        
-        bool result = await _employeeDataService
-            .EmployeeRepository
-            .AddEmployeeAsync(new EmployeeInputData(FirstName, LastName, SelectedPosition.Id, BirthYear, Salary));
+        try
+        {
+            bool result = await _employeeDataService
+                .EmployeeRepository
+                .AddEmployeeAsync(new EmployeeInputData(FirstName, LastName, SelectedPosition.Id, BirthYear, Salary));
+
+            OnCommandComplete?.Invoke(result);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "При добавлении сотрудника возникла ошибка");
+            OnCommandComplete?.Invoke(false);
+        }
     }
     
     private void Cancel(object param)
     {
+        OnCommandComplete?.Invoke(true);
     }
 }

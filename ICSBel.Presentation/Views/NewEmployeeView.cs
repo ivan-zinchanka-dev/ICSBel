@@ -26,13 +26,21 @@ internal partial class NewEmployeeView : Form
         
         InitializeComponent();
         InitializeLayout();
-        SetupBindings();
+        SetUpBindings();
+        SetUpSubscriptions();
     }
     
     protected override async void OnLoad(EventArgs eventArgs)
     {
-        base.OnLoad(eventArgs);
-        await _viewModel.InitializeAsync();
+        try
+        {
+            base.OnLoad(eventArgs);
+            await _viewModel.InitializeAsync();
+        }
+        catch (Exception ex)
+        {
+            // TODO _logger.LogError(ex, "При загрузке данных возникла ошибка");
+        }
     }
     
     private void InitializeLayout()
@@ -83,38 +91,30 @@ internal partial class NewEmployeeView : Form
         });
     }
     
-    private void SetupBindings()
+    private void SetUpBindings()
     {
-        _firstNameInput.DataBindings.Add("Text", _viewModel, nameof(NewEmployeeViewModel.FirstName), false, DataSourceUpdateMode.OnPropertyChanged);
-        _lastNameInput.DataBindings.Add("Text", _viewModel, nameof(NewEmployeeViewModel.LastName), false, DataSourceUpdateMode.OnPropertyChanged);
+        _firstNameInput.DataBindings.Add(nameof(TextBox.Text), _viewModel, nameof(NewEmployeeViewModel.FirstName), false, DataSourceUpdateMode.OnPropertyChanged);
+        _lastNameInput.DataBindings.Add(nameof(TextBox.Text), _viewModel, nameof(NewEmployeeViewModel.LastName), false, DataSourceUpdateMode.OnPropertyChanged);
         
-        _positionInput.DataBindings.Add("DataSource", _viewModel, nameof(_viewModel.Positions), true, DataSourceUpdateMode.OnPropertyChanged);
-        _positionInput.DataBindings.Add("SelectedItem", _viewModel, nameof(_viewModel.SelectedPosition), false, DataSourceUpdateMode.OnPropertyChanged);
+        _positionInput.DataBindings.Add(nameof(ComboBox.DataSource), _viewModel, nameof(NewEmployeeViewModel.Positions), true, DataSourceUpdateMode.OnPropertyChanged);
+        _positionInput.DataBindings.Add(nameof(ComboBox.SelectedItem), _viewModel, nameof(NewEmployeeViewModel.SelectedPosition), false, DataSourceUpdateMode.OnPropertyChanged);
         
-        _birthYearInput.DataBindings.Add("Value", _viewModel, nameof(NewEmployeeViewModel.BirthYear), false, DataSourceUpdateMode.OnPropertyChanged);
-        _salaryInput.DataBindings.Add("Value", _viewModel, nameof(NewEmployeeViewModel.Salary), false, DataSourceUpdateMode.OnPropertyChanged);
+        _birthYearInput.DataBindings.Add(nameof(NumericUpDown.Value), _viewModel, nameof(NewEmployeeViewModel.BirthYear), false, DataSourceUpdateMode.OnPropertyChanged);
+        _salaryInput.DataBindings.Add(nameof(NumericUpDown.Value), _viewModel, nameof(NewEmployeeViewModel.Salary), false, DataSourceUpdateMode.OnPropertyChanged);
         
-        _submitButton.Click += (s, e) =>
-        {
-            if (_viewModel.SubmitCommand.CanExecute(null))
-            {
-                _viewModel.SubmitCommand.Execute(null);
-                DialogResult = DialogResult.OK;
-            }
-        };
+        _submitButton.DataBindings.Add(nameof(Button.Command), _viewModel, nameof(NewEmployeeViewModel.SubmitCommand), true);
+        _cancelButton.DataBindings.Add(nameof(Button.Command), _viewModel, nameof(NewEmployeeViewModel.CancelCommand), true);
+    }
 
-        _cancelButton.Click += (s, e) =>
-        {
-            _viewModel.CancelCommand.Execute(null);
-            DialogResult = DialogResult.Cancel;
-        };
-        
+    private void SetUpSubscriptions()
+    {
         _viewModel.ErrorsChanged += OnValidationErrorsChanged;
-        
-        /*_submitButton.DataBindings.Add("Command", _viewModel, nameof(NewEmployeeViewModel.SubmitCommand), true);
-        _cancelButton.DataBindings.Add("Command", _viewModel, nameof(NewEmployeeViewModel.CancelCommand), true);
-        */
-        
+        _viewModel.OnCommandComplete += OnCommandComplete;
+    }
+
+    private void OnCommandComplete(bool commandResult)
+    {
+        DialogResult = DialogResult.OK;
     }
 
     private void OnValidationErrorsChanged(object sender, DataErrorsChangedEventArgs eventArgs)
@@ -139,5 +139,4 @@ internal partial class NewEmployeeView : Form
             _ => null
         };
     }
-
 }
