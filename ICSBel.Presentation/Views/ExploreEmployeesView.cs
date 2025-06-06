@@ -21,15 +21,14 @@ internal partial class ExploreEmployeesView : Form
         
         InitializeComponent();
         InitializeLayout();
-        SetUpBindings();
         SetUpSubscriptions();
     }
 
     private void InitializeLayout()
     {
         Text = "Сотрудники";
-        Width = 800;
-        Height = 500;
+        Width = 1000;
+        Height = 700;
         StartPosition = FormStartPosition.CenterScreen;
         
         var mainLayout = new TableLayoutPanel
@@ -91,6 +90,13 @@ internal partial class ExploreEmployeesView : Form
         mainLayout.SetColumnSpan(_employeeTable, 1);
     }
     
+    private void SetUpSubscriptions()
+    {
+        _viewModel.DataLoaded += OnViewModelDataLoaded; 
+        _positionFilter.SelectedIndexChanged += OnFilterAccept;
+        _removeButton.Click += OnRemoveEmployeesClick;
+    }
+    
     private void SetUpBindings()
     {
         _employeeTable.DataBindings
@@ -106,16 +112,16 @@ internal partial class ExploreEmployeesView : Form
         _reportButton.DataBindings
             .Add(nameof(Button.Command), _viewModel, nameof(_viewModel.ReportCommand), true);
     }
-
-    private void SetUpSubscriptions()
-    {
-        _viewModel.DataLoaded += OnViewModelDataLoaded; 
-        _positionFilter.SelectedIndexChanged += OnFilterAccept;
-        _removeButton.Click += OnRemoveEmployeesClick;
-    }
-
+    
     private void OnViewModelDataLoaded()
     {
+        if (InvokeRequired)
+        {
+            Invoke(OnViewModelDataLoaded);
+            return;
+        }
+        
+        SetUpBindings();
         Enabled = true;
     }
 
